@@ -21,6 +21,7 @@ import {
 import { DeleteWithReassignDialog } from "@/components/dives/delete-with-reassign-dialog";
 import { TripDialog } from "@/components/trips/trip-dialog";
 import { TripHero } from "@/components/trips/trip-hero";
+import { TripInfoDialog } from "@/components/trips/trip-info-dialog";
 import { TripDiveSections } from "@/components/trips/trip-dive-sections";
 import { TripInformationCard } from "@/components/trips/trip-information-card";
 import {
@@ -224,6 +225,7 @@ export function TripDetailPageContent() {
               <Plus className="h-4 w-4 mr-2" />
               Log a dive
             </Button>
+            <TripInfoDialog trip={trip} />
             <ItemActionsMenu variant="ghost" size="sm" className={HERO_CONTROL}>
               <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
                 <Edit className="h-4 w-4 mr-2" />
