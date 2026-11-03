@@ -23,7 +23,7 @@ import { describe, expect, it } from "vitest";
 // `dive-form-fields-menu` all do, each for a reason `DECISIONS.md` records) is
 // left alone; a button with nothing but an icon in it is not.
 //
-// One shape is exempt: a button directly inside a `PopoverTrigger` that opens it
+// One shape is exempt: a button rendered by a `PopoverTrigger` that opens it
 // from its own `onPointerEnter`. Its hover shows a passage rather than its name,
 // so it names itself. A popover trigger without one shows nothing until clicked,
 // so it is not exempt. See "A button that only shows a passage names itself" in
@@ -167,15 +167,13 @@ const childrenRenderText = (inner: string): boolean => {
   return outsideExpressions.trim().length > 0;
 };
 
-// Whether the element opening at `index`, with these `attributes`, is the first
-// thing inside a `<PopoverTrigger asChild>` and opens it on hover. `[^<]*` lets
-// the trigger's own attributes hold an arrow's `>`; a wrapper between the tags
-// fails it.
+// A directly rendered popover trigger may name itself when its hover opens
+// the passage. A wrapper or a trigger without hover handling is not exempt.
 const triggersOwnPassage = (src: string, index: number, attributes: string) => {
   const trigger = src.lastIndexOf("<PopoverTrigger", index);
   return (
     trigger >= 0 &&
-    /^<PopoverTrigger\b[^<]*\basChild\b[^<]*>\s*$/.test(
+    /^<PopoverTrigger\b[^<]*\brender\s*=\s*\{\s*$/.test(
       src.slice(trigger, index),
     ) &&
     /\sonPointerEnter[=\s]/.test(attributes)
@@ -296,36 +294,36 @@ const exempt = (src: string) =>
   buttonElements(src).map(({ triggersOwnPassage }) => triggersOwnPassage);
 
 describe("a popover trigger that opens on hover", () => {
-  it("exempts the button directly inside it", () => {
+  it("exempts the button it directly renders", () => {
     expect(
-      exempt(`<PopoverTrigger asChild onFocus={(e) => e.preventDefault()}>
-        <Button aria-label="About this page" onPointerEnter={openSoon}><Info /></Button>
-      </PopoverTrigger>`),
+      exempt(`<PopoverTrigger render={
+        <Button aria-label="About this page" onPointerEnter={openSoon} />
+      }><Info /></PopoverTrigger>`),
     ).toEqual([true]);
   });
 
   it("exempts nothing behind a wrapper, and no button without the trigger", () => {
     expect(
-      exempt(`<PopoverTrigger asChild>
+      exempt(`<PopoverTrigger render={
         <span><Button aria-label="Delete" onPointerEnter={openSoon}><Trash2 /></Button></span>
-      </PopoverTrigger>
+      } />
       <Button aria-label="Edit" onPointerEnter={openSoon}><Edit /></Button>`),
     ).toEqual([false, false]);
   });
 
   it("is required: a popover trigger without one shows nothing until clicked", () => {
     expect(
-      exempt(`<PopoverTrigger asChild>
-        <Button aria-label="Notifications"><Bell /></Button>
-      </PopoverTrigger>`),
+      exempt(`<PopoverTrigger render={
+        <Button aria-label="Notifications" />
+      }><Bell /></PopoverTrigger>`),
     ).toEqual([false]);
   });
 
   it("does not extend to a tooltip trigger", () => {
     expect(
-      exempt(`<TooltipTrigger asChild>
-        <Button aria-label="Delete" onPointerEnter={openSoon}><Trash2 /></Button>
-      </TooltipTrigger>`),
+      exempt(`<TooltipTrigger render={
+        <Button aria-label="Delete" onPointerEnter={openSoon} />
+      }><Trash2 /></TooltipTrigger>`),
     ).toEqual([false]);
   });
 });
