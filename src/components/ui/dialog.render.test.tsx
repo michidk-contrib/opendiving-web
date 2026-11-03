@@ -32,7 +32,8 @@ import { pinToBottom, pinToTop, reveal, scrollPast } from "@/test/intersection";
 // the press below really reaches Base UI's outside-interaction path, so the first
 // test cannot pass by never having clicked anything.
 
-// Let popup effects and deferred focus or dismissal updates settle.
+// Let popup effects and dismissal updates settle. Focus assertions wait for
+// their target because Base UI can move focus on the next animation frame.
 const settle = () =>
   act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -112,8 +113,6 @@ describe("DialogContent open focus", () => {
         </DialogContent>
       </Dialog>,
     );
-    await settle();
-
     await waitFor(() => expect(screen.getByRole("dialog")).toHaveFocus());
   });
 
@@ -128,12 +127,10 @@ describe("DialogContent open focus", () => {
         </DialogContent>
       </Dialog>,
     );
-    await settle();
-
     const name = screen.getByRole<HTMLInputElement>("textbox", {
       name: "Name",
     });
-    expect(name).toHaveFocus();
+    await waitFor(() => expect(name).toHaveFocus());
     // The dialog wrapper selects the existing text for replacement.
     expect(name.selectionStart).toBe(0);
     expect(name.selectionEnd).toBe("Blue Hole".length);
@@ -149,8 +146,6 @@ describe("DialogContent open focus", () => {
         </DialogContent>
       </Dialog>,
     );
-    await settle();
-
     await waitFor(() => expect(screen.getByRole("dialog")).toHaveFocus());
   });
 });
@@ -187,14 +182,13 @@ describe("DialogContent focus return", () => {
 
     edit.focus();
     await user.keyboard("{Enter}");
-    await settle();
-    expect(screen.getByLabelText("Name")).toHaveFocus();
+    await waitFor(() => expect(screen.getByLabelText("Name")).toHaveFocus());
 
     await user.keyboard("{Escape}");
     await settle();
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(edit).toHaveFocus();
+    await waitFor(() => expect(edit).toHaveFocus());
   });
 
   it("hands focus back to the menu button a confirmation was chosen from", async () => {
@@ -232,17 +226,19 @@ describe("DialogContent focus return", () => {
 
     more.focus();
     await user.keyboard("{Enter}");
-    await settle();
-    expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus(),
+    );
     await user.keyboard("{Enter}");
-    await settle();
-    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus(),
+    );
 
     await user.keyboard("{Escape}");
     await settle();
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(more).toHaveFocus();
+    await waitFor(() => expect(more).toHaveFocus());
   });
 });
 
