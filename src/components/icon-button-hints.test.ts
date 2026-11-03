@@ -22,6 +22,12 @@ import { describe, expect, it } from "vitest";
 // visible text with `aria-label` (`entry-unit-toggle`, `data-export-card`,
 // `dive-form-fields-menu` all do, each for a reason `DECISIONS.md` records) is
 // left alone; a button with nothing but an icon in it is not.
+//
+// One shape is exempt: a button directly inside a `PopoverTrigger` that opens it
+// from its own `onPointerEnter`. Its hover shows a passage rather than its name,
+// so it names itself. A popover trigger without one shows nothing until clicked,
+// so it is not exempt. See "A button that only shows a passage names itself" in
+// `DECISIONS.md`.
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.resolve(here, "..");
 
@@ -161,11 +167,31 @@ const childrenRenderText = (inner: string): boolean => {
   return outsideExpressions.trim().length > 0;
 };
 
+// Whether the element opening at `index`, with these `attributes`, is the first
+// thing inside a `<PopoverTrigger asChild>` and opens it on hover. `[^<]*` lets
+// the trigger's own attributes hold an arrow's `>`; a wrapper between the tags
+// fails it.
+const triggersOwnPassage = (src: string, index: number, attributes: string) => {
+  const trigger = src.lastIndexOf("<PopoverTrigger", index);
+  return (
+    trigger >= 0 &&
+    /^<PopoverTrigger\b[^<]*\basChild\b[^<]*>\s*$/.test(
+      src.slice(trigger, index),
+    ) &&
+    /\sonPointerEnter[=\s]/.test(attributes)
+  );
+};
+
 // Every `<Button …>` / `<button …>` open tag in the file, with the element's
-// children, as `{ line, attributes, children }`.
+// children, as `{ line, attributes, children, triggersOwnPassage }`.
 const buttonElements = (original: string) => {
   const src = blankComments(original);
-  const found: { line: number; attributes: string; children: string }[] = [];
+  const found: {
+    line: number;
+    attributes: string;
+    children: string;
+    triggersOwnPassage: boolean;
+  }[] = [];
   const opens = /<(Button|button)\b/g;
   let open: RegExpExecArray | null;
 
@@ -207,6 +233,7 @@ const buttonElements = (original: string) => {
       line: src.slice(0, open.index).split("\n").length,
       attributes,
       children,
+      triggersOwnPassage: triggersOwnPassage(src, open.index, attributes),
     });
   }
 
@@ -265,14 +292,53 @@ describe("the visible-text rule", () => {
   });
 });
 
+const exempt = (src: string) =>
+  buttonElements(src).map(({ triggersOwnPassage }) => triggersOwnPassage);
+
+describe("a popover trigger that opens on hover", () => {
+  it("exempts the button directly inside it", () => {
+    expect(
+      exempt(`<PopoverTrigger asChild onFocus={(e) => e.preventDefault()}>
+        <Button aria-label="About this page" onPointerEnter={openSoon}><Info /></Button>
+      </PopoverTrigger>`),
+    ).toEqual([true]);
+  });
+
+  it("exempts nothing behind a wrapper, and no button without the trigger", () => {
+    expect(
+      exempt(`<PopoverTrigger asChild>
+        <span><Button aria-label="Delete" onPointerEnter={openSoon}><Trash2 /></Button></span>
+      </PopoverTrigger>
+      <Button aria-label="Edit" onPointerEnter={openSoon}><Edit /></Button>`),
+    ).toEqual([false, false]);
+  });
+
+  it("is required: a popover trigger without one shows nothing until clicked", () => {
+    expect(
+      exempt(`<PopoverTrigger asChild>
+        <Button aria-label="Notifications"><Bell /></Button>
+      </PopoverTrigger>`),
+    ).toEqual([false]);
+  });
+
+  it("does not extend to a tooltip trigger", () => {
+    expect(
+      exempt(`<TooltipTrigger asChild>
+        <Button aria-label="Delete" onPointerEnter={openSoon}><Trash2 /></Button>
+      </TooltipTrigger>`),
+    ).toEqual([false]);
+  });
+});
+
 describe("icon buttons", () => {
   it("carry no accessible name that the hover hint does not also show", () => {
     const offenders = sourceFiles(SRC).flatMap((file) =>
       buttonElements(readFileSync(file, "utf8"))
         .filter(
-          ({ attributes, children }) =>
+          ({ attributes, children, triggersOwnPassage }) =>
             /\saria-label[=\s]/.test(attributes) &&
-            !childrenRenderText(children),
+            !childrenRenderText(children) &&
+            !triggersOwnPassage,
         )
         .map(({ line }) => `${path.relative(SRC, file)}:${line}`),
     );
