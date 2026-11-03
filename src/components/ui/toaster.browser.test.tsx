@@ -40,6 +40,17 @@ describe("notification placement", () => {
         if (width < 640) expect(box.top).toBeLessThan(200);
         else expect(box.top).toBeGreaterThan(600);
       });
+      const root = description.closest('[data-slot="toast"]');
+      if (!(root instanceof HTMLElement)) throw new Error("Missing toast root");
+      root.style.transition = "none";
+      for (const state of ["data-starting-style", "data-ending-style"]) {
+        root.setAttribute(state, "");
+        const offset = new DOMMatrix(getComputedStyle(root).transform).m42;
+        if (width < 640) expect(offset).toBeLessThan(0);
+        else expect(offset).toBeGreaterThan(0);
+        root.removeAttribute(state);
+      }
+      root.style.removeProperty("transition");
       await page.getByRole("button", { name: "Dismiss notification" }).click();
       await waitFor(() => expect(description).not.toBeInTheDocument());
     });

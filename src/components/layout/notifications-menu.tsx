@@ -192,6 +192,7 @@ export function NotificationsMenu() {
           </PopoverTrigger>
         </IconTooltip>
         <PopoverContent
+          collisionPadding={16}
           ref={panelRef}
           align="end"
           aria-label="Notifications"

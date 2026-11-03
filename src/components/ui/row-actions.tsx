@@ -1,9 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { Edit, Eye, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
 import { TableCell } from "@/components/ui/table";
 import { IconTooltip } from "@/components/ui/tooltip";
@@ -36,15 +35,9 @@ export function RowActions({
       <div className="flex justify-end gap-2">
         {viewHref && (
           <IconTooltip label={`View ${label}`}>
-            <Button
-              variant="ghost"
-              size="sm"
-              render={<Link href={viewHref} />}
-              nativeButton={false}
-              role="link"
-            >
+            <ButtonLink variant="ghost" size="sm" href={viewHref}>
               <Eye className="h-4 w-4" />
-            </Button>
+            </ButtonLink>
           </IconTooltip>
         )}
         <IconTooltip label={`Edit ${label}`}>

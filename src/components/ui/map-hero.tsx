@@ -9,9 +9,8 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import Link from "next/link";
 import { ArrowLeft, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -136,17 +135,15 @@ function HeroBackLink({
   backLabel,
 }: Pick<Known, "backHref" | "backLabel">) {
   return (
-    <Button
+    <ButtonLink
       variant="ghost"
       size="sm"
       className={HERO_CONTROL}
-      render={<Link href={backHref} />}
-      nativeButton={false}
-      role="link"
+      href={backHref}
     >
       <ArrowLeft className="h-4 w-4 mr-2" />
       {backLabel}
-    </Button>
+    </ButtonLink>
   );
 }
 

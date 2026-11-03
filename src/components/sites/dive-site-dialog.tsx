@@ -486,7 +486,7 @@ export function DiveSiteDialog({
                 both announce it. Putting the id on this <p> and pointing the
                 inputs at it instead would look equivalent and silently break
                 error announcement: <FormControl> already sets
-                `aria-describedby`, and the Slot lets the child's value win, so
+                `aria-describedby`, and render composition lets the child's value win, so
                 the message id would be dropped. Hidden from AT to avoid
                 reading the same sentence a third time. */}
             <p className="-mt-2 text-sm text-muted-foreground" aria-hidden>

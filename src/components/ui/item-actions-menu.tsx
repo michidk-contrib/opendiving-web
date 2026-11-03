@@ -59,7 +59,7 @@ export function DeleteMenuItem({
     <DropdownMenuItem
       onClick={onSelect}
       disabled={disabled}
-      className="text-destructive focus:text-destructive"
+      variant="destructive"
     >
       <Trash2 className="h-4 w-4 mr-2" />
       Delete

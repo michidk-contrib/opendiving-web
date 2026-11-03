@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import * as Primitive from "./primitives/dialog";
+import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import type { AppComponentProps } from "./component-props";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,12 +14,25 @@ import {
   useKeepFocusedFieldVisible,
   useVisualViewport,
 } from "@/hooks/useVisualViewport";
-export {
-  DialogPortal,
-  DialogOverlay,
-  DialogClose,
-  DialogTrigger,
-} from "./primitives/dialog";
+export { DialogPortal, DialogClose, DialogTrigger } from "./primitives/dialog";
+// Cover the document while iOS pans it for the keyboard, with one viewport of slack.
+function DialogOverlay({
+  className,
+  ...props
+}: AppComponentProps<typeof BaseDialog.Backdrop>) {
+  return (
+    <BaseDialog.Backdrop
+      data-slot="dialog-overlay"
+      className={cn(
+        "absolute left-0 top-(--visual-viewport-doc-top) z-50 h-[calc(var(--visual-viewport-height)_+_100vh)] w-screen bg-black/80 duration-200 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+export { DialogOverlay };
+
 function Dialog({
   onOpenChange,
   dismissOnOutsidePress = false,
@@ -30,6 +44,7 @@ function Dialog({
     <Primitive.Dialog
       {...props}
       onOpenChange={(open, details) => {
+        // An accidental outside tap must not discard a half-filled form.
         if (details.reason === "outside-press" && !dismissOnOutsidePress)
           details.cancel();
         if (
@@ -139,45 +154,48 @@ function DialogContent({
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   const openerRef = React.useRef<HTMLElement | null>(null);
   return (
-    <Primitive.DialogContent
-      showCloseButton={false}
-      ref={(node) => {
-        panelRef.current = node;
-        setRef(ref, node);
-      }}
-      className={cn(
-        "top-[calc(var(--visual-viewport-top)_+_var(--visual-viewport-height)/2)] max-h-[calc(var(--visual-viewport-height)_-_2rem)] w-[calc(100%_-_2rem)] max-w-lg sm:max-w-lg overflow-y-auto rounded-lg border bg-background p-6 px-(--card-pad) text-base text-foreground shadow-lg ring-0 duration-200",
-        className,
-      )}
-      initialFocus={
-        initialFocus ??
-        (() => {
-          const panel = panelRef.current;
-          if (!panel || panel.contains(document.activeElement)) return false;
-          const candidates = openFocusCandidates(panel);
-          if (!(candidates[0] instanceof HTMLSelectElement)) {
-            for (const candidate of candidates) {
-              candidate.focus({ preventScroll: true });
-              if (document.activeElement !== candidate) continue;
-              if (candidate instanceof HTMLInputElement) candidate.select();
-              return false;
+    <Primitive.DialogPortal>
+      <DialogOverlay />
+      <BaseDialog.Popup
+        data-slot="dialog-content"
+        ref={(node) => {
+          panelRef.current = node;
+          setRef(ref, node);
+        }}
+        className={cn(
+          "fixed left-1/2 z-50 grid -translate-x-1/2 -translate-y-1/2 gap-4 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 top-[calc(var(--visual-viewport-top)_+_var(--visual-viewport-height)/2)] max-h-[calc(var(--visual-viewport-height)_-_2rem)] w-[calc(100%_-_2rem)] max-w-lg sm:max-w-lg overflow-y-auto rounded-lg border bg-background p-6 px-(--card-pad) text-base text-foreground shadow-lg ring-0 duration-200",
+          className,
+        )}
+        initialFocus={
+          initialFocus ??
+          (() => {
+            const panel = panelRef.current;
+            if (!panel || panel.contains(document.activeElement)) return false;
+            const candidates = openFocusCandidates(panel);
+            if (!(candidates[0] instanceof HTMLSelectElement)) {
+              for (const candidate of candidates) {
+                candidate.focus({ preventScroll: true });
+                if (document.activeElement !== candidate) continue;
+                if (candidate instanceof HTMLInputElement) candidate.select();
+                return false;
+              }
             }
-          }
-          return panel;
-        })
-      }
-      finalFocus={
-        finalFocus ??
-        (() => (openerRef.current?.isConnected ? openerRef.current : true))
-      }
-      {...props}
-    >
-      <RememberOpener openerRef={openerRef} />
-      <VisualViewportEffects />
-      <InsideDialogContext.Provider value={true}>
-        {children}
-      </InsideDialogContext.Provider>
-    </Primitive.DialogContent>
+            return panel;
+          })
+        }
+        finalFocus={
+          finalFocus ??
+          (() => (openerRef.current?.isConnected ? openerRef.current : true))
+        }
+        {...props}
+      >
+        <RememberOpener openerRef={openerRef} />
+        <VisualViewportEffects />
+        <InsideDialogContext.Provider value={true}>
+          {children}
+        </InsideDialogContext.Provider>
+      </BaseDialog.Popup>
+    </Primitive.DialogPortal>
   );
 }
 

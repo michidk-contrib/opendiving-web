@@ -28,7 +28,10 @@ function Toast({
   return (
     <Primitive.Toast
       className={cn(
+        // Phones show notifications at the top; desktop stacks rise from the bottom.
         "top-0 bottom-auto rounded-md sm:top-auto sm:bottom-0 data-limited:hidden",
+        "data-starting-style:[transform:translateY(-150%)] sm:data-starting-style:[transform:translateY(150%)]",
+        "[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(-150%)] sm:[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(150%)]",
         className,
       )}
       {...props}

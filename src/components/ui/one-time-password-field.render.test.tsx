@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import {
   OneTimePasswordField,
   OneTimePasswordFieldInput,
 } from "./one-time-password-field";
 
-function Field() {
+function Field({ defaultValue = "" }: { defaultValue?: string }) {
   return (
-    <OneTimePasswordField aria-label="Code">
+    <OneTimePasswordField aria-label="Code" defaultValue={defaultValue}>
       {Array.from({ length: 6 }, (_, index) => (
         <OneTimePasswordFieldInput key={index} index={index} />
       ))}
@@ -36,6 +36,24 @@ const mouseDown = (target: Element) => {
 };
 
 describe("OneTimePasswordField", () => {
+  it("selects a filled digit after native touch focus so typing replaces it", () => {
+    render(<Field defaultValue="1234" />);
+    const input = boxes()[1];
+    if (!(input instanceof HTMLInputElement))
+      throw new Error("Expected an OTP input");
+    pointerDown(input, "touch");
+    input.focus();
+    input.click();
+    expect(input.selectionStart).toBe(0);
+    expect(input.selectionEnd).toBe(1);
+    fireEvent.change(input, { target: { value: "7" } });
+    expect(
+      boxes()
+        .map((box) => (box instanceof HTMLInputElement ? box.value : ""))
+        .join(""),
+    ).toBe("1734");
+  });
+
   // iOS raises the keyboard only when the tap can focus the box natively.
   it("leaves native pointer focus available for touch and mouse", () => {
     render(<Field />);

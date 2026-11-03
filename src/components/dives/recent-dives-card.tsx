@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import Link from "next/link";
 import { divesAPI, Dive } from "@/lib/api/dives";
 import { useInfiniteResource } from "@/hooks/useInfiniteResource";
 import { useWithReturnTo } from "@/hooks/useReturnTo";
@@ -14,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadMoreTrigger } from "@/components/ui/load-more-trigger";
 import { BackdropCardList } from "@/components/ui/backdrop-card";
@@ -160,16 +159,14 @@ export function RecentDivesCard({
                 {title}
               </CardTitle>
               {viewAllHref && (
-                <Button
+                <ButtonLink
                   variant="outline"
                   size="sm"
                   className={CARD_TITLE_ACTION}
-                  render={<Link href={viewAllHref} />}
-                  nativeButton={false}
-                  role="link"
+                  href={viewAllHref}
                 >
                   {viewAllLabel}
-                </Button>
+                </ButtonLink>
               )}
             </div>
             {description && <CardDescription>{description}</CardDescription>}
@@ -189,14 +186,10 @@ export function RecentDivesCard({
             title={emptyTitle}
             description={emptyDescription}
             action={
-              <Button
-                render={<Link href={withReturnTo(newDiveHref)} />}
-                nativeButton={false}
-                role="link"
-              >
+              <ButtonLink href={withReturnTo(newDiveHref)}>
                 <Plus className="h-4 w-4 mr-2" />
                 {newDiveLabel}
-              </Button>
+              </ButtonLink>
             }
           />
         ) : (

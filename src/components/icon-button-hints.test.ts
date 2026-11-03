@@ -1,3 +1,4 @@
+import ts from "typescript";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -167,74 +168,75 @@ const childrenRenderText = (inner: string): boolean => {
   return outsideExpressions.trim().length > 0;
 };
 
-// A directly rendered popover trigger may name itself when its hover opens
-// the passage. A wrapper or a trigger without hover handling is not exempt.
-const triggersOwnPassage = (src: string, index: number, attributes: string) => {
-  const trigger = src.lastIndexOf("<PopoverTrigger", index);
-  return (
-    trigger >= 0 &&
-    /^<PopoverTrigger\b[^<]*\brender\s*=\s*\{\s*$/.test(
-      src.slice(trigger, index),
-    ) &&
-    /\sonPointerEnter[=\s]/.test(attributes)
-  );
-};
-
-// Every `<Button …>` / `<button …>` open tag in the file, with the element's
-// children, as `{ line, attributes, children, triggersOwnPassage }`.
+// Parse render composition so a trigger's children and name belong to the Button it renders.
 const buttonElements = (original: string) => {
-  const src = blankComments(original);
+  const file = ts.createSourceFile(
+    "control.tsx",
+    original,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
   const found: {
     line: number;
     attributes: string;
     children: string;
     triggersOwnPassage: boolean;
   }[] = [];
-  const opens = /<(Button|button)\b/g;
-  let open: RegExpExecArray | null;
-
-  while ((open = opens.exec(src))) {
-    const tag = open[1];
-    let depth = 0;
-    let quote: string | null = null;
-    let i = open.index + open[0].length;
-    for (; i < src.length; i++) {
-      const c = src[i];
-      if (quote) {
-        if (c === quote && src[i - 1] !== "\\") quote = null;
-        continue;
-      }
-      if (c === '"' || c === "'" || c === "`") quote = c;
-      else if (c === "{") depth++;
-      else if (c === "}") depth--;
-      else if (c === ">" && depth === 0) break;
-    }
-    const attributes = src.slice(open.index, i + 1);
-    let children = "";
-    if (!attributes.endsWith("/>")) {
-      const pairs = new RegExp(`<${tag}\\b|</${tag}>`, "g");
-      pairs.lastIndex = i + 1;
-      let level = 1;
-      let pair: RegExpExecArray | null;
-      while ((pair = pairs.exec(src))) {
-        if (!pair[0].startsWith("</")) {
-          level++;
-          continue;
+  const visit = (node: ts.Node) => {
+    if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
+      const tag = node.tagName.getText(file);
+      if (["Button", "ButtonLink", "button"].includes(tag)) {
+        let attributes = node.attributes.getText(file);
+        let children = ts.isJsxElement(node.parent)
+          ? node.parent.children.map((child) => child.getText(file)).join(" ")
+          : "";
+        let passage = false;
+        const rendered = ts.isJsxElement(node.parent) ? node.parent : node;
+        const expression = rendered.parent;
+        if (
+          ts.isJsxExpression(expression) &&
+          expression.expression === rendered &&
+          ts.isJsxAttribute(expression.parent) &&
+          expression.parent.name.getText(file) === "render"
+        ) {
+          const parent = expression.parent.parent.parent;
+          if (
+            (ts.isJsxOpeningElement(parent) ||
+              ts.isJsxSelfClosingElement(parent)) &&
+            /Trigger$/.test(parent.tagName.getText(file))
+          ) {
+            attributes +=
+              " " +
+              parent.attributes.properties
+                .filter(
+                  (attr) =>
+                    ts.isJsxAttribute(attr) &&
+                    attr.name.getText(file) !== "render",
+                )
+                .map((attr) => attr.getText(file))
+                .join(" ");
+            if (ts.isJsxElement(parent.parent))
+              children = parent.parent.children
+                .map((child) => child.getText(file))
+                .join(" ");
+            passage =
+              parent.tagName.getText(file) === "PopoverTrigger" &&
+              /\sonPointerEnter[=\s]/.test(" " + attributes);
+          }
         }
-        if (--level === 0) {
-          children = src.slice(i + 1, pair.index);
-          break;
-        }
+        found.push({
+          line:
+            file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1,
+          attributes: " " + attributes,
+          children,
+          triggersOwnPassage: passage,
+        });
       }
     }
-    found.push({
-      line: src.slice(0, open.index).split("\n").length,
-      attributes,
-      children,
-      triggersOwnPassage: triggersOwnPassage(src, open.index, attributes),
-    });
-  }
-
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
   return found;
 };
 
@@ -325,6 +327,34 @@ describe("a popover trigger that opens on hover", () => {
         <Button aria-label="Delete" onPointerEnter={openSoon} />
       }><Trash2 /></TooltipTrigger>`),
     ).toEqual([false]);
+  });
+});
+
+describe("trigger render composition", () => {
+  it.each(["PopoverTrigger", "DialogTrigger", "DropdownMenuTrigger"])(
+    "reads visible children of %s",
+    (trigger) => {
+      const [button] = buttonElements(
+        `<${trigger} render={<Button aria-label="Save" />}>Save</${trigger}>`,
+      );
+      expect(childrenRenderText(button.children)).toBe(true);
+    },
+  );
+
+  it("reads the trigger's label on an icon-only button", () => {
+    const [button] = buttonElements(
+      '<DialogTrigger aria-label="Delete" render={<Button />}><Trash2 /></DialogTrigger>',
+    );
+    expect(button.attributes).toContain('aria-label="Delete"');
+    expect(childrenRenderText(button.children)).toBe(false);
+  });
+
+  it("does not assign wrapper children or labels to a nested button", () => {
+    const [button] = buttonElements(
+      '<DialogTrigger aria-label="Save" render={<span><Button aria-label="Delete"><Trash2 /></Button></span>}>Save</DialogTrigger>',
+    );
+    expect(button.attributes).not.toContain('aria-label="Save"');
+    expect(childrenRenderText(button.children)).toBe(false);
   });
 });
 

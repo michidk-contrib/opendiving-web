@@ -706,14 +706,3 @@
   background-color: hsl(var(--teal));
   aspect-ratio: 3516 / 5556;
 }
-
-/* Form dialog scrims cover the document area Safari leaves behind its keyboard. */
-[data-slot="dialog-overlay"] {
-  position: absolute;
-  left: 0;
-  top: var(--visual-viewport-doc-top);
-  height: calc(var(--visual-viewport-height) + 100vh);
-  width: 100vw;
-  background: rgb(0 0 0 / 0.8);
-  backdrop-filter: none;
-}

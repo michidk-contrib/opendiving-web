@@ -68,12 +68,16 @@ function DropdownMenuContent({
 }
 function DropdownMenuItem({
   className,
+  variant,
   ...props
 }: AppComponentProps<typeof Primitive.DropdownMenuItem>) {
   return (
     <Primitive.DropdownMenuItem
+      variant={variant}
       className={cn(
-        "rounded-sm px-2 py-1.5 touch:py-3 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+        "rounded-sm px-2 py-1.5 touch:py-3",
+        variant !== "destructive" &&
+          "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
         className,
       )}
       {...props}

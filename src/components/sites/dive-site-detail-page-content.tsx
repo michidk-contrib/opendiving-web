@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -10,7 +9,7 @@ import { useDeleteResource } from "@/hooks/useDeleteResource";
 import { useReturnTo, useWithReturnTo } from "@/hooks/useReturnTo";
 import { diveSitesAPI, DiveSite } from "@/lib/api/dive-sites";
 import { RecentDivesCard } from "@/components/dives/recent-dives-card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   DeleteMenuItem,
@@ -102,23 +101,15 @@ export function DiveSiteDetailPageContent() {
         back={back}
         actions={
           <>
-            <Button
+            <ButtonLink
               variant="ghost"
               size="sm"
               className={HERO_CONTROL}
-              render={
-                <Link
-                  href={withReturnTo(
-                    `/dives/new?dive_site_uuid=${diveSite.uuid}`,
-                  )}
-                />
-              }
-              nativeButton={false}
-              role="link"
+              href={withReturnTo(`/dives/new?dive_site_uuid=${diveSite.uuid}`)}
             >
               <Plus className="h-4 w-4 mr-2" />
               Log a dive
-            </Button>
+            </ButtonLink>
             <DiveSiteInfoDialog site={diveSite} />
             <ItemActionsMenu variant="ghost" size="sm" className={HERO_CONTROL}>
               <DropdownMenuItem onClick={() => setIsEditOpen(true)}>

@@ -314,11 +314,12 @@ export function ContactDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Website</FormLabel>
+                  {/* Not `type="url"`: the browser would refuse the bare host
+                      a diver copies off a sign, which is the case the scheme
+                      is added on save for. */}
                   <FormControl
                     render={
-                      /* Not `type="url"`: the browser would refuse the bare host
-                        a diver copies off a sign, which is the case the scheme
-                        is added on save for. */ <Input
+                      <Input
                         inputMode="url"
                         autoComplete="off"
                         placeholder="e.g. blueocean.com"

@@ -41,7 +41,10 @@ const OneTimePasswordField = React.forwardRef<
       const active = inputs.findIndex(
         (input) => input === document.activeElement,
       );
-      if (active > next) inputs[next]?.focus();
+      const selected = inputs[active > next ? next : active];
+      if (active > next) selected?.focus();
+      // Native touch focus bypasses Base UI's focus handler, including selection.
+      selected?.select();
     };
     root.addEventListener("pointerdown", pointerDown, true);
     root.addEventListener("mousedown", mouseDown, true);

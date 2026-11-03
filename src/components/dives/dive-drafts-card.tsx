@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import { FilePen, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/use-toast";
@@ -144,16 +143,14 @@ export function DiveDraftsCard({ enabled, onVanished }: DiveDraftsCardProps) {
                       <Trash2 className="h-4 w-4 mr-2" />
                       Discard
                     </Button>
-                    <Button
+                    <ButtonLink
                       variant="outline"
                       size="sm"
-                      render={<Link href={continueDraftHref(draft.uuid)} />}
-                      nativeButton={false}
-                      role="link"
+                      href={continueDraftHref(draft.uuid)}
                     >
                       <FilePen className="h-4 w-4 mr-2" />
                       Continue
-                    </Button>
+                    </ButtonLink>
                   </div>
                 </li>
               );

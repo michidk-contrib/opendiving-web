@@ -271,11 +271,12 @@ export function CourseDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>People</FormLabel>
+                  {/* A student until the diver says otherwise: on a course,
+                      the people beside the diver are mostly the rest of the
+                      class. The instructor has the field above. */}
                   <FormControl
                     render={
-                      /* A student until the diver says otherwise: on a course,
-                        the people beside the diver are mostly the rest of the
-                        class. The instructor has the field above. */ <PeopleMultiSelect
+                      <PeopleMultiSelect
                         value={field.value ?? []}
                         onChange={field.onChange}
                         defaultRole="student"

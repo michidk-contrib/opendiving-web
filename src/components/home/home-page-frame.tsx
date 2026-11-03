@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AlertTriangle, Plus } from "lucide-react";
 import { RecentDivesCard } from "@/components/dives/recent-dives-card";
 import { RecentTripsCard } from "@/components/dives/recent-trips-card";
@@ -13,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { UserDiveStats } from "@/lib/api/dive-stats";
 import type { Location } from "@/lib/api/location";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { HERO_BODY, HERO_CONTROL } from "@/components/ui/map-hero";
 import { cn } from "@/lib/utils";
 
@@ -66,17 +65,15 @@ export function HomePageFrame({
         stats={stats}
         places={places}
         actions={
-          <Button
+          <ButtonLink
             variant="ghost"
             size="sm"
             className={HERO_CONTROL}
-            render={<Link href="/dives/new?from=/home" />}
-            nativeButton={false}
-            role="link"
+            href="/dives/new?from=/home"
           >
             <Plus className="h-4 w-4 mr-2" />
             Log a dive
-          </Button>
+          </ButtonLink>
         }
       />
 

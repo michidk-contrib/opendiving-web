@@ -233,14 +233,15 @@ export function TripDialog({
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Parts</FormLabel>
+                  {/* No `FormMessage` here, and the field renders the
+                      messages instead. A schema error on a part makes
+                      `errors.parts` an array with no `message` of its own,
+                      which `FormMessage` would print as the word
+                      "undefined" - and one line above twenty rows could not
+                      say which of them was wrong anyway. */}
                   <FormControl
                     render={
-                      /* No `FormMessage` here, and the field renders the
-                        messages instead. A schema error on a part makes
-                        `errors.parts` an array with no `message` of its own,
-                        which `FormMessage` would print as the word
-                        "undefined" - and one line above twenty rows could not
-                        say which of them was wrong anyway. */ <TripPartsField
+                      <TripPartsField
                         value={field.value ?? []}
                         onChange={field.onChange}
                         errors={tripPartErrors(fieldState.error)}
@@ -272,11 +273,12 @@ export function TripDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>People</FormLabel>
+                  {/* No role to start from: who comes on a trip is a buddy, a
+                      partner who stays on the boat, a friend who never gets
+                      wet - the diver says which, if anything. */}
                   <FormControl
                     render={
-                      /* No role to start from: who comes on a trip is a buddy, a
-                        partner who stays on the boat, a friend who never gets
-                        wet - the diver says which, if anything. */ <PeopleMultiSelect
+                      <PeopleMultiSelect
                         value={field.value ?? []}
                         onChange={field.onChange}
                         defaultRole={null}

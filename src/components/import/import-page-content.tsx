@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Link from "next/link";
 
 import type { ImportCheckInChoices } from "@/components/import/import-check-in-details";
 import { ImportDiveTable } from "@/components/import/import-dive-table";
@@ -13,7 +12,7 @@ import {
 import { ImportNumberingSuggestion } from "@/components/import/import-numbering-suggestion";
 import { ImportReportView } from "@/components/import/import-report-view";
 import { ImportReview } from "@/components/import/import-review";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
 import { Meter } from "@/components/ui/meter";
 import { PageSpinner } from "@/components/ui/page-spinner";
@@ -268,13 +267,7 @@ function ImportFlow() {
             the result does not repeat; `true` suppresses advice to import the
             archive about a decision already taken. */}
         <ImportReportView report={result} archive />
-        <Button
-          render={<Link href="/dives" />}
-          nativeButton={false}
-          role="link"
-        >
-          Done
-        </Button>
+        <ButtonLink href="/dives">Done</ButtonLink>
       </section>
     );
   }

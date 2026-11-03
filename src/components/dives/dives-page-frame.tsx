@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, type ReactNode, type Ref } from "react";
-import Link from "next/link";
 import { CloudUpload, Plus } from "lucide-react";
 import { DiveIcon } from "@/components/logo";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { HERO_BODY, IndexHero } from "@/components/ui/map-hero";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -109,25 +108,14 @@ export function DivesPageFrame({
         headingRef={headingRef}
         actions={
           <>
-            <Button
-              variant="ghost"
-              size="sm"
-              render={<Link href="/import" />}
-              nativeButton={false}
-              role="link"
-            >
+            <ButtonLink variant="ghost" size="sm" href="/import">
               <CloudUpload className="h-4 w-4 mr-2" />
               Import
-            </Button>
-            <Button
-              size="sm"
-              render={<Link href="/dives/new" />}
-              nativeButton={false}
-              role="link"
-            >
+            </ButtonLink>
+            <ButtonLink size="sm" href="/dives/new">
               <Plus className="h-4 w-4 mr-2" />
               Log new dive
-            </Button>
+            </ButtonLink>
           </>
         }
       />
@@ -188,14 +176,10 @@ export function DivesPageFrame({
                   title="No dives logged yet"
                   description="Start by adding your first dive!"
                   action={
-                    <Button
-                      render={<Link href="/dives/new" />}
-                      nativeButton={false}
-                      role="link"
-                    >
+                    <ButtonLink href="/dives/new">
                       <Plus className="h-4 w-4 mr-2" />
                       Log your first dive
-                    </Button>
+                    </ButtonLink>
                   }
                 />
               )}

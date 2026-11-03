@@ -171,10 +171,11 @@ export function TrainingFields({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Dive center</FormLabel>
+            {/* Its dialog opens over this one, and over the certification
+                dialog too when a course is being added from there. */}
             <FormControl
               render={
-                /* Its dialog opens over this one, and over the certification
-                  dialog too when a course is being added from there. */ <ContactCombobox
+                <ContactCombobox
                   value={field.value}
                   onChange={field.onChange}
                   until={until}
@@ -196,10 +197,11 @@ export function TrainingFields({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Instructor</FormLabel>
+              {/* A person, picked or typed: a name nobody has yet becomes one
+                  on Enter, so naming a new instructor is still one step. */}
               <FormControl
                 render={
-                  /* A person, picked or typed: a name nobody has yet becomes one
-                    on Enter, so naming a new instructor is still one step. */ <PersonCombobox
+                  <PersonCombobox
                     value={field.value}
                     onChange={onInstructorChange ?? field.onChange}
                     until={until}

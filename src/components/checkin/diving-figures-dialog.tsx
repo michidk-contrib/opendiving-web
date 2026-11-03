@@ -144,10 +144,11 @@ export function DivingFiguresDialog({
                       writes it: the number is the diver's own system and nothing
                       else on the row says which. */}
                   <FormLabel>Max depth ({unitLabel("depth", units)})</FormLabel>
+                  {/* Shows and takes the diver's own units while the value
+                      behind it stays metric, like every other depth box. */}
                   <FormControl
                     render={
-                      /* Shows and takes the diver's own units while the value
-                        behind it stays metric, like every other depth box. */ <UnitNumberInput
+                      <UnitNumberInput
                         dimension="depth"
                         units={units}
                         min={0}

@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 
 export interface NotFoundStateProps {
   message: string;
@@ -18,14 +17,10 @@ export function NotFoundState({
   return (
     <div className="text-center py-12">
       <div className="text-muted-foreground mb-4">{message}</div>
-      <Button
-        render={<Link href={backHref} />}
-        nativeButton={false}
-        role="link"
-      >
+      <ButtonLink href={backHref}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         {backLabel}
-      </Button>
+      </ButtonLink>
     </div>
   );
 }

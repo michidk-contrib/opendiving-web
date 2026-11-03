@@ -396,12 +396,13 @@ export function CertificationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course</FormLabel>
+                  {/* Opens its own `CourseDialog` on "Add course...", which
+                      puts a dialog on top of this one. `dialogFormSubmit`
+                      keeps that inner submit out of this form - see
+                      DECISIONS.md. */}
                   <FormControl
                     render={
-                      /* Opens its own `CourseDialog` on "Add course...", which
-                        puts a dialog on top of this one. `dialogFormSubmit`
-                        keeps that inner submit out of this form - see
-                        DECISIONS.md. */ <CourseCombobox
+                      <CourseCombobox
                         value={field.value}
                         onChange={field.onChange}
                         onCourseSelected={prefillFromCourse}

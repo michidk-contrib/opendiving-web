@@ -409,10 +409,11 @@ export function DiveFormFields<TFieldValues extends DiveFormValues>({
                         <FormLabel>Boat name</FormLabel>
                         <div className="relative">
                           <Ship className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                          {/* `""` is not recorded, and the submit paths trim it into
+                              the API's `null` - see `boatNameOrNull`. */}
                           <FormControl
                             render={
-                              /* `""` is not recorded, and the submit paths trim it into
-                      the API's `null` - see `boatNameOrNull`. */ <Input
+                              <Input
                                 type="text"
                                 placeholder="e.g. Legend"
                                 className="pl-9"

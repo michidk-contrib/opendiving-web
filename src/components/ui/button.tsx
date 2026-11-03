@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Button as PrimitiveButton } from "./primitives/button";
+import Link from "next/link";
+import { Button as PrimitiveButton } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -48,12 +49,27 @@ export interface ButtonProps
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
     <PrimitiveButton
-      variant={variant ?? undefined}
-      size={size ?? undefined}
+      data-slot="button"
       {...props}
       className={cn(buttonVariants({ variant, size, className }))}
     />
   );
 }
 
-export { Button, buttonVariants };
+// Links keep navigation semantics and browser shortcuts without button keyboard handling.
+function ButtonLink({
+  className,
+  variant,
+  size,
+  ...props
+}: React.ComponentProps<typeof Link> & VariantProps<typeof buttonVariants>) {
+  return (
+    <Link
+      {...props}
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+    />
+  );
+}
+
+export { Button, ButtonLink, buttonVariants };

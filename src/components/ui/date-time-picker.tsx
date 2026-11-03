@@ -302,9 +302,13 @@ function CalendarDateTimePicker({
       open={open}
       onOpenChange={(next, details) => {
         if (
-          details.reason === "outside-press" &&
-          details.event.target instanceof Node &&
-          anchorRef.current?.contains(details.event.target)
+          (details.reason === "outside-press" &&
+            details.event.target instanceof Node &&
+            anchorRef.current?.contains(details.event.target)) ||
+          (details.reason === "focus-out" &&
+            details.event instanceof FocusEvent &&
+            details.event.relatedTarget instanceof Node &&
+            anchorRef.current?.contains(details.event.relatedTarget))
         )
           details.cancel();
         if (!details.isCanceled) setOpen(next);

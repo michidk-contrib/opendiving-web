@@ -127,10 +127,11 @@ export function DiveSiteDetailsFields({ control }: DiveSiteDetailsFieldsProps) {
               {unitLabelRow("altitude", "Altitude")}
               <div className="relative">
                 <Mountain className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+                {/* The dive's band, which the API's `CHECK` on a site
+                    repeats: the Dead Sea is below sea level. */}
                 <FormControl
                   render={
-                    /* The dive's band, which the API's `CHECK` on a site
-                      repeats: the Dead Sea is below sea level. */ <UnitNumberInput
+                    <UnitNumberInput
                       dimension="altitude"
                       units={entryUnits("altitude")}
                       min={-450}

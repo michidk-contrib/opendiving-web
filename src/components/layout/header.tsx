@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { getApiErrorMessage } from "@/lib/api/error";
 import { useWithReturnTo } from "@/hooks/useReturnTo";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconTooltip } from "@/components/ui/tooltip";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -490,15 +490,13 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              <Button
+              <ButtonLink
                 size="sm"
                 className="bg-coral text-primary-foreground hover:bg-coral/90"
-                render={<Link href="/signin" />}
-                nativeButton={false}
-                role="link"
+                href="/signin"
               >
                 Sign in
-              </Button>
+              </ButtonLink>
             )}
 
             {/* Mobile menu button */}
