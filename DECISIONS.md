@@ -7042,3 +7042,15 @@ height `useShortViewport` marks the root and they rest in place. The mark comes 
 visual viewport has held still for 250ms: the box animates back to full height over 200ms, and a
 footer pinned at once rides up above the closing keyboard. Hiding on focus is rejected for the dive
 form's reasons.
+
+## Pull requests land through a merge queue, and a branch need not be current with `main`
+
+The `main` ruleset requires a merge queue and its required-checks rule is not strict; the queue goes
+on once every required check reports under `merge_group`. The queue squashes each entry onto `main`
+as it stands, runs the required checks on that result and lands it only if they pass. Strict is
+rejected because that work falls on contributors, and a fork owned by an organisation cannot be
+updated by a maintainer at all. Loose checks alone are rejected because every merge deploys to the
+hosted instance within minutes, untested as merged. `semantic-title` and `dependency-review` have no
+pull request to read on a merge group and skip; a skipped job reports success. The release
+coordinator in opendiving/opendiving merges bump pull requests with `gh pr merge`, which a required
+queue enqueues instead of merging, so the queue goes on only once that flow can merge past it.
