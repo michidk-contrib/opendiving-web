@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useRef,
   useState,
   type ComponentType,
   type ReactNode,
@@ -11,11 +12,10 @@ import Link from "next/link";
 import { ArrowLeft, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CardSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { MapCredit } from "@/components/map/map-credit";
 import {
@@ -426,37 +426,51 @@ export function PlainHero({
   );
 }
 
-// The description opens on hover or keyboard focus; tapping also opens it on phones.
+// Mouse hover reveals the description; touch and keyboard users open the popover.
 function PageInfo({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const openedOnHover = useRef(false);
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip open={open} onOpenChange={setOpen}>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label="About this page"
-            className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
-            onClick={(event) => {
-              event.preventDefault();
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) openedOnHover.current = false;
+        setOpen(nextOpen);
+      }}
+    >
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="About this page"
+          className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
+          onPointerEnter={(event) => {
+            if (event.pointerType === "mouse" && !open) {
+              openedOnHover.current = true;
               setOpen(true);
-            }}
-          >
-            <Info className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent
-          side="bottom"
-          align="start"
-          className="w-72 max-w-[calc(100vw-1.25rem)] p-4 text-sm"
+            }
+          }}
         >
-          {children}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+          <Info className="h-4 w-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        aria-label="About this page"
+        className="max-w-[calc(100vw-1.25rem)] text-sm"
+        onOpenAutoFocus={(event) => {
+          // Hover must not move focus away from what the reader is doing.
+          if (openedOnHover.current) event.preventDefault();
+        }}
+        onCloseAutoFocus={(event) => {
+          if (openedOnHover.current) event.preventDefault();
+        }}
+      >
+        {children}
+      </PopoverContent>
+    </Popover>
   );
 }
 

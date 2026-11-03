@@ -52,31 +52,56 @@ describe("page information", () => {
   it("shows the full description on hover and dismisses it with Escape", async () => {
     const user = userEvent.setup();
     const button = renderInfo();
-    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
+    const previousFocus = document.activeElement;
     await user.hover(button);
-    const tooltip = await screen.findByRole("tooltip");
-    expect(tooltip).toHaveTextContent(description);
-    expect(tooltip).not.toHaveTextContent("About this page");
+    const popover = await screen.findByRole("dialog");
+    expect(popover).toHaveTextContent(description);
+    expect(document.activeElement).toBe(previousFocus);
+    expect(popover).not.toHaveTextContent("About this page");
 
     await user.keyboard("{Escape}");
     await waitFor(() =>
-      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument(),
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
   });
 
-  it("shows the description on keyboard focus", async () => {
+  it("opens on keyboard activation and returns focus after Escape", async () => {
     const user = userEvent.setup();
     renderInfo();
     await user.tab();
-    expect(await screen.findByRole("tooltip")).toHaveTextContent(description);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("dialog")).toHaveTextContent(description);
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole("button", { name: "About this page" }),
+    ).toHaveFocus();
+  });
+
+  it("keeps the description open when moving into it and dismisses outside", async () => {
+    const user = userEvent.setup();
+    const button = renderInfo();
+    await user.hover(button);
+    await user.hover(await screen.findByRole("dialog"));
+    expect(screen.getByRole("dialog")).toHaveTextContent(description);
+    await user.click(document.body);
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("still opens on a touch tap", async () => {
     const button = renderInfo();
+    fireEvent.pointerEnter(button, { pointerType: "touch" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     fireEvent.pointerDown(button, { pointerType: "touch" });
     fireEvent.pointerUp(button, { pointerType: "touch" });
     fireEvent.click(button);
-    expect(await screen.findByRole("tooltip")).toHaveTextContent(description);
+    expect(await screen.findByRole("dialog")).toHaveTextContent(description);
   });
 });

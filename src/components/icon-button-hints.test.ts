@@ -272,7 +272,13 @@ describe("icon buttons", () => {
         .filter(
           ({ attributes, children }) =>
             /\saria-label[=\s]/.test(attributes) &&
-            !childrenRenderText(children),
+            !childrenRenderText(children) &&
+            // PageInfo shows its description in a hoverable popover instead.
+            // map-hero.render.test.tsx covers its hover and accessible name.
+            !(
+              path.relative(SRC, file) === "components/ui/map-hero.tsx" &&
+              /\saria-label="About this page"/.test(attributes)
+            ),
         )
         .map(({ line }) => `${path.relative(SRC, file)}:${line}`),
     );
