@@ -2,6 +2,8 @@
 
 import {
   useCallback,
+  useEffect,
+  useRef,
   useState,
   type ComponentType,
   type ReactNode,
@@ -15,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { IconTooltip } from "@/components/ui/tooltip";
+import { HINT_DELAY_MS } from "@/components/ui/tooltip";
 import { CardSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { MapCredit } from "@/components/map/map-credit";
 import {
@@ -426,25 +428,64 @@ export function PlainHero({
   );
 }
 
-// What a page is for, behind an icon after its title: a reader needs it once,
-// and every visit after that it is only a line between the title and the page.
-// A popover rather than a hover hint, so a tap opens it on a phone.
+// A reader needs the page's explanation once, so it stays behind an icon.
+// Keep a popover so a tap opens it and moves focus into its content; mouse hover
+// waits like other hints, then closes on leaving so it cannot follow into the page.
 function PageInfo({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const openedOnHover = useRef(false);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const cancelHover = () => clearTimeout(hoverTimer.current);
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
+
   return (
-    <Popover>
-      <IconTooltip label="About this page">
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
-          >
-            <Info className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-      </IconTooltip>
-      <PopoverContent align="start" className="text-sm">
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        cancelHover();
+        if (nextOpen) openedOnHover.current = false;
+        setOpen(nextOpen);
+      }}
+    >
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="About this page"
+          className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
+          onPointerEnter={(event) => {
+            if (event.pointerType === "mouse" && !open) {
+              cancelHover();
+              hoverTimer.current = setTimeout(() => {
+                openedOnHover.current = true;
+                setOpen(true);
+              }, HINT_DELAY_MS);
+            }
+          }}
+          onPointerLeave={() => {
+            cancelHover();
+            if (openedOnHover.current) setOpen(false);
+          }}
+          onPointerDown={cancelHover}
+        >
+          <Info className="h-4 w-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        aria-label="About this page"
+        className="max-w-[calc(100vw-1.25rem)] text-sm"
+        onOpenAutoFocus={(event) => {
+          // Hover must not move focus away from what the reader is doing.
+          if (openedOnHover.current) event.preventDefault();
+        }}
+        onCloseAutoFocus={(event) => {
+          if (openedOnHover.current) event.preventDefault();
+        }}
+      >
         {children}
       </PopoverContent>
     </Popover>

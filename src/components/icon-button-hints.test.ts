@@ -23,9 +23,8 @@ import { describe, expect, it } from "vitest";
 // `dive-form-fields-menu` all do, each for a reason `DECISIONS.md` records) is
 // left alone; a button with nothing but an icon in it is not.
 //
-// One shape is exempt: a button that is a `TooltipTrigger`'s own child already
-// shows something on hover - a passage of its own rather than its name - so it
-// names itself. See "A button that only shows a passage names itself" in
+// A button directly inside `TooltipTrigger` or `PopoverTrigger` already shows
+// a passage of its own rather than its name, so it names itself. See "A button that only shows a passage names itself" in
 // `DECISIONS.md`.
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.resolve(here, "..");
@@ -167,27 +166,30 @@ const childrenRenderText = (inner: string): boolean => {
 };
 
 // Whether the element opening at `index` is the first thing inside a
-// `<TooltipTrigger asChild>`. `[^<]*` lets the trigger's own attributes hold an
-// arrow's `>`; anything between the two tags - a wrapper - fails it.
-const triggersOwnTooltip = (src: string, index: number) => {
-  const trigger = src.lastIndexOf("<TooltipTrigger", index);
+// `<TooltipTrigger asChild>` or `<PopoverTrigger asChild>`. `[^<]*` lets the
+// trigger's own attributes hold an arrow's `>`; a wrapper between the tags fails it.
+const triggersOwnPassage = (src: string, index: number) => {
+  const trigger = Math.max(
+    src.lastIndexOf("<TooltipTrigger", index),
+    src.lastIndexOf("<PopoverTrigger", index),
+  );
   return (
     trigger >= 0 &&
-    /^<TooltipTrigger\b[^<]*\basChild\b[^<]*>\s*$/.test(
+    /^<(?:Tooltip|Popover)Trigger\b[^<]*\basChild\b[^<]*>\s*$/.test(
       src.slice(trigger, index),
     )
   );
 };
 
 // Every `<Button …>` / `<button …>` open tag in the file, with the element's
-// children, as `{ line, attributes, children, triggersOwnTooltip }`.
+// children, as `{ line, attributes, children, triggersOwnPassage }`.
 const buttonElements = (original: string) => {
   const src = blankComments(original);
   const found: {
     line: number;
     attributes: string;
     children: string;
-    triggersOwnTooltip: boolean;
+    triggersOwnPassage: boolean;
   }[] = [];
   const opens = /<(Button|button)\b/g;
   let open: RegExpExecArray | null;
@@ -230,7 +232,7 @@ const buttonElements = (original: string) => {
       line: src.slice(0, open.index).split("\n").length,
       attributes,
       children,
-      triggersOwnTooltip: triggersOwnTooltip(src, open.index),
+      triggersOwnPassage: triggersOwnPassage(src, open.index),
     });
   }
 
@@ -289,23 +291,23 @@ describe("the visible-text rule", () => {
   });
 });
 
-describe("a tooltip's own trigger", () => {
+describe.each(["TooltipTrigger", "PopoverTrigger"])("%s", (trigger) => {
   const exempt = (src: string) =>
-    buttonElements(src).map(({ triggersOwnTooltip }) => triggersOwnTooltip);
+    buttonElements(src).map(({ triggersOwnPassage }) => triggersOwnPassage);
 
   it("exempts the button directly inside it", () => {
     expect(
-      exempt(`<TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
+      exempt(`<${trigger} asChild onFocus={(e) => e.preventDefault()}>
         <Button aria-label="About this page"><Info /></Button>
-      </TooltipTrigger>`),
+      </${trigger}>`),
     ).toEqual([true]);
   });
 
   it("exempts nothing behind a wrapper, and no button without the trigger", () => {
     expect(
-      exempt(`<TooltipTrigger asChild>
+      exempt(`<${trigger} asChild>
         <span><Button aria-label="Delete"><Trash2 /></Button></span>
-      </TooltipTrigger>
+      </${trigger}>
       <Button aria-label="Edit"><Edit /></Button>`),
     ).toEqual([false, false]);
   });
@@ -316,10 +318,10 @@ describe("icon buttons", () => {
     const offenders = sourceFiles(SRC).flatMap((file) =>
       buttonElements(readFileSync(file, "utf8"))
         .filter(
-          ({ attributes, children, triggersOwnTooltip }) =>
+          ({ attributes, children, triggersOwnPassage }) =>
             /\saria-label[=\s]/.test(attributes) &&
             !childrenRenderText(children) &&
-            !triggersOwnTooltip,
+            !triggersOwnPassage,
         )
         .map(({ line }) => `${path.relative(SRC, file)}:${line}`),
     );
