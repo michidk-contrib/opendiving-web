@@ -5999,6 +5999,18 @@ tap lands on a backdrop under the menu instead of being stopped.
 
 Rejected: a hint on tap, which would take every icon button's tap.
 
+## A button that only shows a passage names itself, and its tooltip is the passage
+
+An icon button whose one job is to show some text - a page's description behind an ⓘ - is that
+text's own `Tooltip` trigger, not an `IconTooltip`. Its hover shows the passage rather than its
+name, so the name goes on the button as `aria-label`, and the passage reaches a screen reader as the
+description Radix points `aria-describedby` at; that default stays. A tap opens it as well: the
+rejection above protects a tap that belongs to the control, and this control's tap has nothing else
+to do.
+
+`icon-button-hints.test.ts` exempts a button directly inside a `TooltipTrigger asChild`. Its hover
+shows something, which is what the guard asks; whether it says the right thing is review's call.
+
 ## Icon button hints: The guard is structural, reading the source rather than the DOM
 
 `components/icon-button-hints.test.ts` reads the source, not the DOM: a `<Button>` or `<button>`
@@ -7030,3 +7042,15 @@ height `useShortViewport` marks the root and they rest in place. The mark comes 
 visual viewport has held still for 250ms: the box animates back to full height over 200ms, and a
 footer pinned at once rides up above the closing keyboard. Hiding on focus is rejected for the dive
 form's reasons.
+
+## Pull requests land through a merge queue, and a branch need not be current with `main`
+
+The `main` ruleset requires a merge queue and its required-checks rule is not strict; the queue goes
+on once every required check reports under `merge_group`. The queue squashes each entry onto `main`
+as it stands, runs the required checks on that result and lands it only if they pass. Strict is
+rejected because that work falls on contributors, and a fork owned by an organisation cannot be
+updated by a maintainer at all. Loose checks alone are rejected because every merge deploys to the
+hosted instance within minutes, untested as merged. `semantic-title` and `dependency-review` have no
+pull request to read on a merge group and skip; a skipped job reports success. The release
+coordinator in opendiving/opendiving merges bump pull requests with `gh pr merge`, which a required
+queue enqueues instead of merging, so the queue goes on only once that flow can merge past it.
