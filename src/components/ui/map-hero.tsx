@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type ComponentType,
@@ -16,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { HINT_DELAY_MS } from "@/components/ui/tooltip";
 import { CardSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { MapCredit } from "@/components/map/map-credit";
 import {
@@ -426,15 +428,23 @@ export function PlainHero({
   );
 }
 
-// Mouse hover reveals the description; touch and keyboard users open the popover.
+// A reader needs the page's explanation once, so it stays behind an icon.
+// Keep a popover so a tap opens it and moves focus into its content; mouse hover
+// waits like other hints, then closes on leaving so it cannot follow into the page.
 function PageInfo({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const openedOnHover = useRef(false);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const cancelHover = () => clearTimeout(hoverTimer.current);
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
   return (
     <Popover
       open={open}
       onOpenChange={(nextOpen) => {
+        cancelHover();
         if (nextOpen) openedOnHover.current = false;
         setOpen(nextOpen);
       }}
@@ -448,10 +458,18 @@ function PageInfo({ children }: { children: ReactNode }) {
           className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
           onPointerEnter={(event) => {
             if (event.pointerType === "mouse" && !open) {
-              openedOnHover.current = true;
-              setOpen(true);
+              cancelHover();
+              hoverTimer.current = setTimeout(() => {
+                openedOnHover.current = true;
+                setOpen(true);
+              }, HINT_DELAY_MS);
             }
           }}
+          onPointerLeave={() => {
+            cancelHover();
+            if (openedOnHover.current) setOpen(false);
+          }}
+          onPointerDown={cancelHover}
         >
           <Info className="h-4 w-4" />
         </Button>

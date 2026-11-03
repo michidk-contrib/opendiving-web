@@ -1,5 +1,5 @@
 import { createRef } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   act,
   fireEvent,
@@ -11,6 +11,7 @@ import {
 import userEvent from "@testing-library/user-event";
 
 import { IndexHero } from "./map-hero";
+import { HINT_DELAY_MS } from "./tooltip";
 
 describe("IndexHero", () => {
   // The dive list moves focus to its heading when something above the list
@@ -43,6 +44,7 @@ describe("IndexHero", () => {
 });
 
 describe("page information", () => {
+  afterEach(() => vi.useRealTimers());
   const description = "Track your equipment and service history";
   const renderInfo = () => {
     render(<IndexHero title="Gear" description={description} />);
@@ -83,11 +85,45 @@ describe("page information", () => {
     ).toHaveFocus();
   });
 
-  it("keeps the description open when moving into it and dismisses outside", async () => {
+  it("waits before opening and cancels when the mouse only crosses the icon", async () => {
+    vi.useFakeTimers();
+    const button = renderInfo();
+    const movePointer = (type: "pointerover" | "pointerout") =>
+      fireEvent(
+        button,
+        Object.assign(new MouseEvent(type, { bubbles: true }), {
+          pointerType: "mouse",
+        }),
+      );
+    movePointer("pointerover");
+    await act(() => vi.advanceTimersByTimeAsync(HINT_DELAY_MS - 1));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    movePointer("pointerout");
+    await act(() => vi.advanceTimersByTimeAsync(HINT_DELAY_MS));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    movePointer("pointerover");
+    await act(() => vi.advanceTimersByTimeAsync(HINT_DELAY_MS));
+    expect(screen.getByRole("dialog")).toHaveTextContent(description);
+    movePointer("pointerout");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("closes once on mouse click after hovering without reopening", async () => {
     const user = userEvent.setup();
     const button = renderInfo();
     await user.hover(button);
-    await user.hover(await screen.findByRole("dialog"));
+    const popover = await screen.findByRole("dialog");
+    await user.click(button);
+    await waitFor(() => expect(popover).not.toBeInTheDocument());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps a clicked popover open after the pointer leaves and dismisses outside", async () => {
+    const user = userEvent.setup();
+    const button = renderInfo();
+    await user.click(button);
+    expect(await screen.findByRole("dialog")).toHaveFocus();
+    await user.unhover(button);
     expect(screen.getByRole("dialog")).toHaveTextContent(description);
     await user.click(document.body);
     await waitFor(() =>
@@ -102,6 +138,14 @@ describe("page information", () => {
     fireEvent.pointerDown(button, { pointerType: "touch" });
     fireEvent.pointerUp(button, { pointerType: "touch" });
     fireEvent.click(button);
-    expect(await screen.findByRole("dialog")).toHaveTextContent(description);
+    const popover = await screen.findByRole("dialog");
+    expect(popover).toHaveTextContent(description);
+    expect(popover).toHaveFocus();
+    fireEvent.pointerDown(button, { pointerType: "touch" });
+    fireEvent.pointerUp(button, { pointerType: "touch" });
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 });
