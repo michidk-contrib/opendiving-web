@@ -28,12 +28,11 @@ function TooltipContent({
   ...props
 }: AppComponentProps<typeof Primitive.TooltipContent>) {
   return (
-    // App hints have a plain rectangular outline without an arrow.
     <Primitive.TooltipContent
       role="tooltip"
       sideOffset={sideOffset}
       className={cn(
-        "max-w-64 rounded-md border border-white/10 bg-tooltip px-2 py-1 text-xs text-tooltip-foreground shadow-lg [&>[data-side]]:hidden",
+        "max-w-64 rounded-md border border-white/10 bg-tooltip px-2 py-1 text-xs text-tooltip-foreground shadow-lg",
         className,
       )}
       render={(props, state) => (

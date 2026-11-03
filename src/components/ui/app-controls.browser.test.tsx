@@ -94,7 +94,7 @@ it("gives link buttons native navigation semantics and Enter handling", async ()
   expect(click).toHaveBeenCalledOnce();
 });
 
-it("hides the Base UI tooltip arrow", async () => {
+it("shows the tooltip arrow with the popup's background", async () => {
   render(
     <Tooltip open>
       <TooltipTrigger>Details</TooltipTrigger>
@@ -104,7 +104,10 @@ it("hides the Base UI tooltip arrow", async () => {
   const tooltip = await screen.findByRole("tooltip");
   const arrow = tooltip.querySelector(":scope > [data-side]");
   if (!arrow) throw new Error("Missing Base UI arrow");
-  expect(getComputedStyle(arrow).display).toBe("none");
+  expect(getComputedStyle(arrow).display).not.toBe("none");
+  expect(getComputedStyle(arrow).backgroundColor).toBe(
+    getComputedStyle(tooltip).backgroundColor,
+  );
 });
 
 it("lets application backdrop classes override geometry and color", async () => {
