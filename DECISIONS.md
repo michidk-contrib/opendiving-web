@@ -3667,8 +3667,8 @@ differ; base64 contains no `'`.
 
 ## A pin is a promise to renew, and `.github/renovate.json5` is the renewer
 
-Renovate, not Dependabot, which cannot read `.nvmrc`, group across ecosystems, or see a workflow's
-`with:` inputs, where `setup-trivy` takes its version. No version is proposed before it is three
+Renovate, not Dependabot, which cannot read `.nvmrc`, group across ecosystems, or see the workflow's
+annotated `TRIVY_VERSION` pin. A regex manager tracks that pin on GitHub Releases. No version is proposed before it is three
 days old, and npm gets that cutoff as `--before` whenever Renovate regenerates the lockfile;
 vulnerability fixes are exempt, Renovate's default kept on purpose.
 
