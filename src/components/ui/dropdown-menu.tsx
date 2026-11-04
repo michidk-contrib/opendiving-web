@@ -1,5 +1,7 @@
 "use client";
 import * as React from "react";
+import { Menu as MenuPrimitive } from "@base-ui/react/menu";
+import { Circle } from "lucide-react";
 import * as Primitive from "./primitives/dropdown-menu";
 import type { AppComponentProps } from "./component-props";
 import { cn } from "@/lib/utils";
@@ -7,11 +9,8 @@ export {
   DropdownMenu,
   DropdownMenuPortal,
   DropdownMenuGroup,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
@@ -75,7 +74,7 @@ function DropdownMenuItem({
     <Primitive.DropdownMenuItem
       variant={variant}
       className={cn(
-        "rounded-sm px-2 py-1.5 touch:py-3",
+        "gap-0 rounded-sm px-2 py-1.5 touch:py-3",
         variant !== "destructive" &&
           "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
         className,
@@ -84,4 +83,66 @@ function DropdownMenuItem({
     />
   );
 }
-export { DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem };
+function DropdownMenuRadioItem({
+  className,
+  children,
+  ...props
+}: AppComponentProps<typeof MenuPrimitive.RadioItem>) {
+  return (
+    <MenuPrimitive.RadioItem
+      data-slot="dropdown-menu-radio-item"
+      closeOnClick
+      className={cn(
+        "relative flex cursor-default select-none items-center rounded-sm py-1.5 touch:py-3 pl-8 pr-2 text-sm outline-none transition-colors data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    >
+      <span className="pointer-events-none absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <MenuPrimitive.RadioItemIndicator data-slot="dropdown-menu-radio-item-indicator">
+          <Circle className="h-2 w-2 fill-current" />
+        </MenuPrimitive.RadioItemIndicator>
+      </span>
+      {children}
+    </MenuPrimitive.RadioItem>
+  );
+}
+
+function DropdownMenuLabel({
+  className,
+  inset,
+  ...props
+}: AppComponentProps<typeof Primitive.DropdownMenuLabel>) {
+  return (
+    <Primitive.DropdownMenuLabel
+      inset={inset}
+      className={cn(
+        "px-2 py-1.5 text-sm font-semibold text-popover-foreground",
+        inset && "data-inset:pl-8",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function DropdownMenuSeparator({
+  className,
+  ...props
+}: AppComponentProps<typeof Primitive.DropdownMenuSeparator>) {
+  return (
+    <Primitive.DropdownMenuSeparator
+      className={cn("bg-muted", className)}
+      {...props}
+    />
+  );
+}
+
+export {
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+};

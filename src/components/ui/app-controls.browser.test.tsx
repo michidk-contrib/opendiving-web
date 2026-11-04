@@ -14,6 +14,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import "@/app/globals.css";
@@ -142,6 +145,37 @@ it("preserves destructive text while a menu item is highlighted", async () => {
   await waitFor(() => expect(item).toHaveAttribute("data-highlighted"));
   expect(getComputedStyle(item).color).toBe(
     getComputedStyle(screen.getByTestId("red")).color,
+  );
+});
+
+it("preserves icon row spacing, label padding, and muted separators", async () => {
+  render(
+    <DropdownMenu open>
+      <DropdownMenuTrigger>Account</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+          <DropdownMenuItem>
+            <Plus className="mr-2 h-4 w-4" />
+            Profile
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <div data-testid="muted" className="bg-muted" />
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  );
+  const item = await screen.findByRole("menuitem", { name: "Profile" });
+  expect(getComputedStyle(item).columnGap).toBe("0px");
+  expect(getComputedStyle(item).paddingLeft).toBe("8px");
+  const icon = item.querySelector("svg");
+  if (!icon) throw new Error("Missing menu icon");
+  expect(getComputedStyle(icon).marginRight).toBe("8px");
+  const label = screen.getByText("Appearance");
+  expect(getComputedStyle(label).paddingLeft).toBe("8px");
+  expect(getComputedStyle(label).paddingTop).toBe("6px");
+  expect(getComputedStyle(screen.getByRole("separator")).backgroundColor).toBe(
+    getComputedStyle(screen.getByTestId("muted")).backgroundColor,
   );
 });
 

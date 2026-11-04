@@ -38,7 +38,7 @@ export function ThemeMenuItems() {
       <DropdownMenuRadioGroup
         // Before mount there is no resolved preference, and guessing one would
         // flash the wrong radio as checked.
-        value={mounted ? theme : undefined}
+        value={mounted ? (theme ?? "") : ""}
         onValueChange={setTheme}
       >
         <DropdownMenuRadioItem value="light">
