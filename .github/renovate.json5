@@ -29,10 +29,9 @@
   //     scoped to one ecosystem, which together make the "Node runtime" rule below
   //     inexpressible under it. That rule is not a nicety; its own comment says why an
   //     ungrouped Node bump here is wrong by construction.
-  //   - It reads a workflow's `uses:` and nothing in its `with:`, so the Trivy version
-  //     `vulnerability-scan.yml` hands `setup-trivy` would stay frozen forever. Renovate's
-  //     github-actions manager reads that input as a dependency of its own
-  //     (`aquasecurity/trivy`, `github-releases`) and renews it like any other pin.
+  //   - It reads a workflow's `uses:` and nothing in its `with:`, so the annotated
+  //     `TRIVY_VERSION` pin would stay frozen forever. The regex manager below reads
+  //     it as `aquasecurity/trivy` from `github-releases`.
   //   - The api repo already runs Renovate. A second bot on the sibling repo means two
   //     dashboards, two PR-title conventions and two settings pages for one product that
   //     ships as a matched pair.
@@ -141,6 +140,16 @@
   // OSV needs nothing switched on anywhere, so the alerting above works from the merge of
   // this file rather than from whenever someone remembers the settings page.
   "osvVulnerabilityAlerts": true,
+
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/.github/workflows/vulnerability-scan\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+TRIVY_VERSION: (?<currentValue>\\S+)",
+      ],
+    },
+  ],
 
   "packageRules": [
     {

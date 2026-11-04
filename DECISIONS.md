@@ -2416,9 +2416,7 @@ own timezone (see "A dive's `start_time` displays/edits in its own timezone, nev
 then the place. `formatDiveStartTime` - weekday, month in full, and the offset appended so `10:04`
 can be checked - is rejected there so a dive reads the same on its page as in every list; it stays
 on the import's match rows, where telling two dives apart is the point. A bare date prints no clock
-in either. The hero's figures are the dive time, maximum depth, water temperature and visibility,
-each but the dive time where the dive records it, in whole units as the card rounds them, and the
-average depth after the maximum only while the rest leave fewer than four.
+in either. The hero's figures are in whole units as the card rounds them.
 
 ## The ppO₂ limit is picked from a list, and an unlisted one is added to it
 
@@ -3669,10 +3667,10 @@ differ; base64 contains no `'`.
 
 ## A pin is a promise to renew, and `.github/renovate.json5` is the renewer
 
-Renovate, not Dependabot, which cannot read `.nvmrc`, group across ecosystems, or see a workflow's
-`with:` inputs, where `setup-trivy` takes its version. No version is proposed before it is three
-days old, and npm gets that cutoff as `--before` whenever Renovate regenerates the lockfile;
-vulnerability fixes are exempt, Renovate's default kept on purpose.
+Renovate, not Dependabot, which cannot read `.nvmrc`, group across ecosystems, or see the workflow's
+annotated `TRIVY_VERSION` pin. A regex manager tracks that pin on GitHub Releases. No version is
+proposed before it is three days old, and npm gets that cutoff as `--before` whenever Renovate
+regenerates the lockfile; vulnerability fixes are exempt, Renovate's default kept on purpose.
 
 `pinDigests: false` is load-bearing: the `Dockerfile` floats on its base tags so a Publish Image
 re-run at an old `v` tag collects patched packages, which a digest pin would not. First-party

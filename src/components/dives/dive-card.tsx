@@ -49,7 +49,7 @@ interface DiveCardProps {
 // One dive as a card, in every list of dives: a map of its sites and fixes as
 // the backdrop - the map's water where it has none - with
 // its depth curve across the foot of it, and its dive time, deepest point and
-// water temperature - or its average depth where it has no temperature.
+// water temperature - or, where it has no temperature, the species it saw.
 export function DiveCard({
   dive,
   onDelete,
@@ -80,8 +80,9 @@ export function DiveCard({
       }),
     });
   }
-  if (figures.length < 3 && dive.avg_depth != null) {
-    figures.push({ label: "Avg depth", value: depth(dive.avg_depth) });
+  // Only into a spare slot: the card's row holds three figures.
+  if (figures.length < 3 && dive.species_count) {
+    figures.push({ label: "Species seen", value: dive.species_count });
   }
 
   const chips = diveChips(dive);
