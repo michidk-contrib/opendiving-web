@@ -1,4 +1,5 @@
 import { apiClient, PaginatedResponse } from "./client";
+import type { DiveSiteCommonsMatch, DiveSiteSharedMembers } from "./dive-sites";
 import type { Species } from "./species";
 
 /**
@@ -161,10 +162,46 @@ export interface AdminSpeciesPhotoCandidates {
   candidates: AdminSpeciesPhotoCandidate[];
 }
 
+/** A diver's own site for the Commons, or a change to a record. */
+export type DiveSiteProposalKind = "new_site" | "change";
+
+/**
+ * One row of the review queue, as `GET /admin/dive-site-proposals` lists it: every
+ * row is waiting, oldest first. Of the site it carries the members a Commons record
+ * would and nothing else, notes and tags included, whose it is being the proposer's.
+ *
+ * `current` is the site as it stands now. `proposed` is what is under review: a new
+ * site as it stood when proposed, or the record with the change applied, with the
+ * members the proposer named in `changed`. `matches` are the records it may be,
+ * strongest first.
+ */
+export interface AdminDiveSiteProposal {
+  uuid: string;
+  kind: DiveSiteProposalKind;
+  message: string;
+  created_at: string;
+  proposer: { name: string; accepted_count: number; declined_count: number };
+  site_uuid: string;
+  current: DiveSiteSharedMembers;
+  proposed: DiveSiteSharedMembers;
+  changed: string[];
+  matches: DiveSiteCommonsMatch[];
+}
+
+/**
+ * What an acceptance writes. `members` is the whole record, every member named, and
+ * is written exactly as sent with the pin rounded. `into` folds a new site into a
+ * record it duplicates, and `members` beside it, if any, are written over that record.
+ */
+export type DiveSiteProposalAccept =
+  | { members: DiveSiteSharedMembers; into?: undefined }
+  | { into: string; members?: DiveSiteSharedMembers };
+
 /**
  * The superuser-only operator routes: the invite queue, the two things that can
- * be done to a selection from it, the daily totals, and the species catalog's
- * photos.
+ * be done to a selection from it, the daily totals, the species catalog's photos,
+ * and the queue of Commons proposals, which is a 404 on a copy that does not edit
+ * the Commons.
  *
  * Every one of these answers `401` signed out and `403` for a signed-in account
  * that is not a superuser - the API's gate is the one that counts, and the
@@ -310,5 +347,34 @@ export const adminAPI = {
       `/admin/species/${encodeURIComponent(uuid)}/photo/refetch`,
     );
     return response.data;
+  },
+
+  /** One page of the proposals waiting for review, oldest first. */
+  async getDiveSiteProposals(
+    page: number = 1,
+    items_per_page: number = 10,
+  ): Promise<PaginatedResponse<AdminDiveSiteProposal>> {
+    const response = await apiClient.get<
+      PaginatedResponse<AdminDiveSiteProposal>
+    >("/admin/dive-site-proposals", { params: { page, items_per_page } });
+    return response.data;
+  },
+
+  /**
+   * Accepts a waiting proposal. A body breaking one of the record rules is a 422
+   * naming it, and a proposal no longer waiting is a 409.
+   */
+  async acceptDiveSiteProposal(
+    uuid: string,
+    body: DiveSiteProposalAccept,
+  ): Promise<void> {
+    await apiClient.post(`/admin/dive-site-proposal/${uuid}/accept`, body);
+  },
+
+  /** Declines a waiting proposal with a reason, which the proposer reads. */
+  async declineDiveSiteProposal(uuid: string, reason: string): Promise<void> {
+    await apiClient.post(`/admin/dive-site-proposal/${uuid}/decline`, {
+      reason,
+    });
   },
 };
