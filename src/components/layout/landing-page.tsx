@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 import {
   Card,
   CardContent,
@@ -9,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { useRedirectIfAuthenticated } from "@/hooks/useRedirectIfAuthenticated";
 import { useInstanceConfig } from "@/hooks/useInstanceConfig";
 import { AuthForm } from "@/components/auth/auth-form";
@@ -393,23 +391,22 @@ export function LandingPage({ channel, inviteLink }: LandingPageProps = {}) {
             says what is built and what is not, and contributions are welcome.
           </p>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <a
-                href={SELF_HOSTING_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                How to self-host
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </a>
-            </Button>
+            <ButtonLink
+              size="lg"
+              href={SELF_HOSTING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              How to self-host
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </ButtonLink>
             {/* `/signin`, not the `#get-started` anchor back up the page: it is
                 where the header's own Sign in button goes, and a dedicated page
                 is a better answer this far down than a scroll that lands the
                 visitor on a hero they have already read past. */}
-            <Button asChild size="lg" variant="outline">
-              <Link href="/signin">Sign in to this instance</Link>
-            </Button>
+            <ButtonLink size="lg" variant="outline" href="/signin">
+              Sign in to this instance
+            </ButtonLink>
           </div>
         </div>
       </section>

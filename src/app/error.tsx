@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { RotateCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { PAGE_COLUMN } from "@/components/ui/map-hero";
 
 interface RouteErrorProps {
@@ -30,9 +29,9 @@ export default function RouteError({ error, retry }: RouteErrorProps) {
             <RotateCw className="h-4 w-4 mr-2" />
             Try again
           </Button>
-          <Button variant="outline" asChild>
-            <Link href="/">Back to home</Link>
-          </Button>
+          <ButtonLink variant="outline" href="/">
+            Back to home
+          </ButtonLink>
         </div>
       </div>
     </div>

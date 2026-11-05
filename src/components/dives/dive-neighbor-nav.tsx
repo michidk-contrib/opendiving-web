@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { divesAPI, DiveNeighbor, DiveNeighbors } from "@/lib/api/dives";
 import { formatDiveDateTime } from "@/lib/date-time";
 import { cn } from "@/lib/utils";
@@ -178,60 +178,48 @@ function NavLink({ direction, neighbor, isPending, className }: NavLinkProps) {
     : fallbackLabel;
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <a
       className={cn(
+        buttonVariants({ variant: "ghost", size: "sm" }),
         className,
         // Matches `Button`'s own `disabled:` styling, since `aria-disabled` is
         // what stands in for `disabled` here.
         !href && "pointer-events-none opacity-50",
       )}
-      asChild
-    >
-      <a
-        href={href}
-        // Focusable even with nothing to point at - the point of the exercise.
-        tabIndex={0}
-        // An `<a>` with no `href` is `generic` to the accessibility tree, not a
-        // link, and a generic node carries no accessible name - so without this
-        // the unavailable button would stop announcing itself entirely rather
-        // than announcing itself as unavailable.
-        role="link"
-        aria-disabled={!href}
-        aria-busy={isPending}
-        // The word on screen is the first word of this, which is what keeps the
-        // visible label part of the accessible one.
-        aria-label={label}
-        title={label}
-        onClick={(event) => {
-          if (!href) {
-            event.preventDefault();
-            return;
-          }
-          // Leave cmd/ctrl/shift/alt-clicks to the browser, so "open in a new
-          // tab" still works on what is, after all, a link to a page.
-          if (
-            event.metaKey ||
-            event.ctrlKey ||
-            event.shiftKey ||
-            event.altKey
-          ) {
-            return;
-          }
+      href={href}
+      // Focusable even with nothing to point at - the point of the exercise.
+      tabIndex={0}
+      // An `<a>` with no `href` is `generic` to the accessibility tree, not a
+      // link, and a generic node carries no accessible name - so without this
+      // the unavailable button would stop announcing itself entirely rather
+      // than announcing itself as unavailable.
+      role="link"
+      aria-disabled={!href}
+      aria-busy={isPending}
+      // The word on screen is the first word of this, which is what keeps the
+      // visible label part of the accessible one.
+      aria-label={label}
+      title={label}
+      onClick={(event) => {
+        if (!href) {
           event.preventDefault();
-          router.push(href);
-        }}
-      >
-        {/* The chevron alone on a phone, where the words would push the
+          return;
+        }
+        // Leave cmd/ctrl/shift/alt-clicks to the browser, so "open in a new
+        // tab" still works on what is, after all, a link to a page.
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        event.preventDefault();
+        router.push(href);
+      }}
+    >
+      {/* The chevron alone on a phone, where the words would push the
             top row past the screen's edge; the name is `aria-label`'s at
             every width. */}
-        {isPrevious && <Chevron className="h-4 w-4 sm:mr-1" />}
-        <span className="max-sm:hidden">
-          {isPrevious ? "Previous" : "Next"}
-        </span>
-        {!isPrevious && <Chevron className="h-4 w-4 sm:ml-1" />}
-      </a>
-    </Button>
+      {isPrevious && <Chevron className="h-4 w-4 sm:mr-1" />}
+      <span className="max-sm:hidden">{isPrevious ? "Previous" : "Next"}</span>
+      {!isPrevious && <Chevron className="h-4 w-4 sm:ml-1" />}
+    </a>
   );
 }

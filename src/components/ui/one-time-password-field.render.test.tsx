@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import {
   OneTimePasswordField,
   OneTimePasswordFieldInput,
 } from "./one-time-password-field";
 
-function Field() {
+function Field({ defaultValue = "" }: { defaultValue?: string }) {
   return (
-    <OneTimePasswordField aria-label="Code">
+    <OneTimePasswordField aria-label="Code" defaultValue={defaultValue}>
       {Array.from({ length: 6 }, (_, index) => (
         <OneTimePasswordFieldInput key={index} index={index} />
       ))}
@@ -18,7 +18,7 @@ function Field() {
 
 const boxes = () => screen.getAllByRole("textbox");
 
-// jsdom has no `PointerEvent`; the wrapper and Radix both read only `pointerType`.
+// The touch workaround needs only `pointerType`.
 const pointerDown = (target: Element, pointerType: string) => {
   const event = new Event("pointerdown", { bubbles: true, cancelable: true });
   Object.defineProperty(event, "pointerType", { value: pointerType });
@@ -36,17 +36,33 @@ const mouseDown = (target: Element) => {
 };
 
 describe("OneTimePasswordField", () => {
-  // iOS raises the keyboard only for a box the tap itself focuses, and Radix cancels
-  // `pointerdown` to focus it in code instead.
-  it("leaves a tap uncancelled, and keeps Radix's handling for a mouse", () => {
+  it("selects a filled digit after native touch focus so typing replaces it", () => {
+    render(<Field defaultValue="1234" />);
+    const input = boxes()[1];
+    if (!(input instanceof HTMLInputElement))
+      throw new Error("Expected an OTP input");
+    pointerDown(input, "touch");
+    input.focus();
+    input.click();
+    expect(input.selectionStart).toBe(0);
+    expect(input.selectionEnd).toBe(1);
+    fireEvent.change(input, { target: { value: "7" } });
+    expect(
+      boxes()
+        .map((box) => (box instanceof HTMLInputElement ? box.value : ""))
+        .join(""),
+    ).toBe("1734");
+  });
+
+  // iOS raises the keyboard only when the tap can focus the box natively.
+  it("leaves native pointer focus available for touch and mouse", () => {
     render(<Field />);
 
     expect(pointerDown(boxes()[0], "touch")).toBe(false);
-    expect(pointerDown(boxes()[0], "mouse")).toBe(true);
+    expect(pointerDown(boxes()[0], "mouse")).toBe(false);
   });
 
-  // The box past the code is one Radix's roving focus will not let a `mousedown`
-  // focus, and on iOS the tap's `mousedown` is what focuses it.
+  // A touch must keep its native mousedown focus, including past the current code.
   it("lets a tap's mousedown through to a box past the code", () => {
     render(<Field />);
 

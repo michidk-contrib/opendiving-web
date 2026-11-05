@@ -20,7 +20,7 @@ import { RecentDivesCard } from "@/components/dives/recent-dives-card";
 import { CourseCertificationsCard } from "@/components/courses/course-certifications-card";
 import { CourseDialog } from "@/components/courses/course-dialog";
 import { PeopleList } from "@/components/people/people-list";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import {
   DeleteMenuItem,
   ItemActionsMenu,
@@ -240,14 +240,12 @@ export function CourseDetailPageContent() {
                   content width until `lg`, where it becomes a third of it and
                   the pair no longer fits across. */}
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-                <Button asChild>
-                  <Link
-                    href={withReturnTo(`/dives/new?course_uuid=${course.uuid}`)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Log a dive
-                  </Link>
-                </Button>
+                <ButtonLink
+                  href={withReturnTo(`/dives/new?course_uuid=${course.uuid}`)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Log a dive
+                </ButtonLink>
                 <Button
                   variant="outline"
                   onClick={() => setIsAddingCertification(true)}

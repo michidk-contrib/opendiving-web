@@ -682,6 +682,15 @@ export interface Dive {
   // How many recordings the dive holds. A list-response field, standing in for
   // `recordings` where the list doesn't send them; absent on the detail response.
   recording_count?: number;
+  // Whether the profile the dive page charts held the diver to a deco ceiling.
+  // A list-response field, standing in for that profile's `max_ceiling` where
+  // the list doesn't send recordings; absent on the detail response. Read it
+  // through `owedDeco()` (`lib/dive-recordings.ts`), which answers for both.
+  deco?: boolean;
+  // How many species the dive's sightings name. A list-response field, standing
+  // in for `sightings` where the list doesn't send them; absent on the detail
+  // response.
+  species_count?: number;
 }
 
 /** A recording's depth curve at a dive card's resolution. */

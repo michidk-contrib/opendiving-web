@@ -16,6 +16,7 @@ import {
   type Dive,
 } from "@/lib/api/dives";
 import { labelOrFallback } from "@/lib/api/labels";
+import { owedDeco } from "@/lib/dive-recordings";
 
 // One chip, bordered in its text's colour, with what it stands for in full as
 // its hover hint and in a screen reader's words. Without the text's glow, as a
@@ -39,7 +40,6 @@ function Chip({ text, label }: { text: string; label: string }) {
       {/* The name is already in the chip's words, so the hint describes
           nothing a screen reader has not heard: `IconTooltip`'s override. */}
       <TooltipTrigger
-        asChild
         aria-describedby={undefined}
         onPointerDown={(event) => {
           finger.current = event.pointerType !== "mouse";
@@ -47,11 +47,12 @@ function Chip({ text, label }: { text: string; label: string }) {
         onClick={() => {
           if (finger.current) setTapped(true);
         }}
+        render={
+          <span className="relative rounded-sm border border-current bg-background/80 px-1 text-[10px] font-semibold leading-4 tracking-wide [text-shadow:none] touch:after:absolute touch:after:inset-x-0 touch:after:-inset-y-[13px] md:text-xs md:leading-5 md:touch:after:-inset-y-[11px]" />
+        }
       >
-        <span className="relative rounded-sm border border-current bg-background/80 px-1 text-[10px] font-semibold leading-4 tracking-wide [text-shadow:none] touch:after:absolute touch:after:inset-x-0 touch:after:-inset-y-[13px] md:text-xs md:leading-5 md:touch:after:-inset-y-[11px]">
-          <span aria-hidden>{text}</span>
-          <span className="sr-only">{label}</span>
-        </span>
+        <span aria-hidden>{text}</span>
+        <span className="sr-only">{label}</span>
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
@@ -71,19 +72,20 @@ function TagChip({ tag }: { tag: string }) {
 
 /**
  * The chips over a dive's title, on its card and its page's hero alike: the
- * water, then the kind of dive, then the diver's tags in their order. Salt
- * water and open circuit have none - each goes without saying - and a dive
- * with none of the three has no row. Lifted over a card's link, so its hints
- * are reachable by a mouse; on a card a finger's tap goes through them to the
- * link (`DiveCard`).
+ * water, then the kind of dive, then whether it owed decompression, then the
+ * diver's tags in their order. Salt water, open circuit and a no-stop dive
+ * have none - each goes without saying - and a dive with none of the four has
+ * no row. Lifted over a card's link, so its hints are reachable by a mouse; on
+ * a card a finger's tap goes through them to the link (`DiveCard`).
  */
 export function diveChips(dive: Dive): ReactNode {
   const water = dive.water_type && WATER_TYPE_ABBREVIATIONS[dive.water_type];
   const type = dive.type && DIVE_TYPE_ABBREVIATIONS[dive.type];
+  const deco = owedDeco(dive);
   const tags = dive.tags ?? [];
-  if (!water && !type && tags.length === 0) return null;
+  if (!water && !type && !deco && tags.length === 0) return null;
   return (
-    <TooltipProvider delayDuration={HINT_DELAY_MS} disableHoverableContent>
+    <TooltipProvider delay={HINT_DELAY_MS}>
       <div className="relative z-10 flex w-fit max-w-full flex-wrap gap-1">
         {water && (
           <Chip
@@ -97,6 +99,7 @@ export function diveChips(dive: Dive): ReactNode {
             label={labelOrFallback(DIVE_TYPE_LABELS, dive.type!)}
           />
         )}
+        {deco && <Chip text="Deco" label="Decompression dive" />}
         {tags.map((tag) => (
           <TagChip key={tag} tag={tag} />
         ))}
