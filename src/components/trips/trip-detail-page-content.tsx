@@ -12,7 +12,7 @@ import { tripsAPI, Trip, type TripDiveAddScope } from "@/lib/api/trips";
 import type { Dive } from "@/lib/api/dives";
 import { useContactsByUuid } from "@/hooks/useContactsByUuid";
 import { usePeopleByUuid } from "@/hooks/usePeopleByUuid";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   DeleteMenuItem,
@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/map-hero";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { Edit, Plus, Luggage } from "lucide-react";
-import Link from "next/link";
 import { PageSpinner } from "@/components/ui/page-spinner";
 import { getApiErrorStatus } from "@/lib/api/error";
 import { countNoun } from "@/lib/format";
@@ -210,15 +209,18 @@ export function TripDetailPageContent() {
         back={back}
         actions={
           <>
-            <Button variant="ghost" size="sm" className={HERO_CONTROL} asChild>
-              <Link href={withReturnTo(`/dives/new?trip_uuid=${trip.uuid}`)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Log a dive
-              </Link>
-            </Button>
+            <ButtonLink
+              variant="ghost"
+              size="sm"
+              className={HERO_CONTROL}
+              href={withReturnTo(`/dives/new?trip_uuid=${trip.uuid}`)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Log a dive
+            </ButtonLink>
             <TripInfoDialog trip={trip} />
             <ItemActionsMenu variant="ghost" size="sm" className={HERO_CONTROL}>
-              <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>
+              <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </DropdownMenuItem>

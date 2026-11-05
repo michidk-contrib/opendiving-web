@@ -1,11 +1,10 @@
 "use client";
 
 import { type ReactNode } from "react";
-import Link from "next/link";
 import { Fish } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CountBadge } from "@/components/ui/count-badge";
 import {
@@ -119,12 +118,10 @@ export function SpeciesPageFrame({
                   title="No species yet"
                   description="Record what you saw on a dive and it will appear here."
                   action={
-                    <Button asChild>
-                      <Link href="/dives">
-                        <Fish className="h-4 w-4 mr-2" />
-                        Go to your dives
-                      </Link>
-                    </Button>
+                    <ButtonLink href="/dives">
+                      <Fish className="h-4 w-4 mr-2" />
+                      Go to your dives
+                    </ButtonLink>
                   }
                 />
               )

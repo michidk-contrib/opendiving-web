@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import Link from "next/link";
 import type { Contact } from "@/lib/api/contacts";
 import type { Dive } from "@/lib/api/dives";
 import type { TripDiveAddScope, TripPart } from "@/lib/api/trips";
@@ -15,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BackdropCardList } from "@/components/ui/backdrop-card";
 import {
@@ -447,12 +446,10 @@ export function TripDiveSections({
             title="No dives logged for this trip yet"
             description="Log a dive and assign it to this trip to see it here."
             action={
-              <Button asChild>
-                <Link href={withReturnTo(newDiveHref)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Log a dive for this trip
-                </Link>
-              </Button>
+              <ButtonLink href={withReturnTo(newDiveHref)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Log a dive for this trip
+              </ButtonLink>
             }
           />
         </CardContent>

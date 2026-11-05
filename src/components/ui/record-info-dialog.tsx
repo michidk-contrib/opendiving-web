@@ -53,13 +53,9 @@ export function RecordInfoDialog({
         <Info className="h-4 w-4 sm:mr-2" />
         <span className="max-sm:sr-only">Info</span>
       </Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        {/* Read-only, so a click outside has nothing to lose and closes it:
-            `undefined` drops `DialogContent`'s guard for half-filled forms. */}
-        <DialogContent
-          className="sm:max-w-2xl"
-          onPointerDownOutside={undefined}
-        >
+      {/* Read-only information can safely close on an outside press. */}
+      <Dialog open={open} onOpenChange={setOpen} dismissOnOutsidePress>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>

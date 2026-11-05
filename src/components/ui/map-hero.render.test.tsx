@@ -80,9 +80,11 @@ describe("page information", () => {
     await waitFor(() =>
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
-    expect(
-      screen.getByRole("button", { name: "About this page" }),
-    ).toHaveFocus();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "About this page" }),
+      ).toHaveFocus(),
+    );
   });
 
   it("waits before opening and cancels when the mouse only crosses the icon", async () => {
@@ -122,7 +124,8 @@ describe("page information", () => {
     const user = userEvent.setup();
     const button = renderInfo();
     await user.click(button);
-    expect(await screen.findByRole("dialog")).toHaveFocus();
+    const popover = await screen.findByRole("dialog");
+    await waitFor(() => expect(popover).toHaveFocus());
     await user.unhover(button);
     expect(screen.getByRole("dialog")).toHaveTextContent(description);
     await user.click(document.body);
@@ -140,7 +143,7 @@ describe("page information", () => {
     fireEvent.click(button);
     const popover = await screen.findByRole("dialog");
     expect(popover).toHaveTextContent(description);
-    expect(popover).toHaveFocus();
+    await waitFor(() => expect(popover).toHaveFocus());
     fireEvent.pointerDown(button, { pointerType: "touch" });
     fireEvent.pointerUp(button, { pointerType: "touch" });
     fireEvent.click(button);

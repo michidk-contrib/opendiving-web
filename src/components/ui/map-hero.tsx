@@ -9,9 +9,8 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import Link from "next/link";
 import { ArrowLeft, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -136,12 +135,15 @@ function HeroBackLink({
   backLabel,
 }: Pick<Known, "backHref" | "backLabel">) {
   return (
-    <Button variant="ghost" size="sm" asChild className={HERO_CONTROL}>
-      <Link href={backHref}>
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        {backLabel}
-      </Link>
-    </Button>
+    <ButtonLink
+      variant="ghost"
+      size="sm"
+      className={HERO_CONTROL}
+      href={backHref}
+    >
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      {backLabel}
+    </ButtonLink>
   );
 }
 
@@ -449,42 +451,40 @@ function PageInfo({ children }: { children: ReactNode }) {
         setOpen(nextOpen);
       }}
     >
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="About this page"
-          className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
-          onPointerEnter={(event) => {
-            if (event.pointerType === "mouse" && !open) {
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="About this page"
+            className="h-7 w-7 shrink-0 text-muted-foreground print:hidden"
+            onPointerEnter={(event) => {
+              if (event.pointerType === "mouse" && !open) {
+                cancelHover();
+                hoverTimer.current = setTimeout(() => {
+                  openedOnHover.current = true;
+                  setOpen(true);
+                }, HINT_DELAY_MS);
+              }
+            }}
+            onPointerLeave={() => {
               cancelHover();
-              hoverTimer.current = setTimeout(() => {
-                openedOnHover.current = true;
-                setOpen(true);
-              }, HINT_DELAY_MS);
-            }
-          }}
-          onPointerLeave={() => {
-            cancelHover();
-            if (openedOnHover.current) setOpen(false);
-          }}
-          onPointerDown={cancelHover}
-        >
-          <Info className="h-4 w-4" />
-        </Button>
+              if (openedOnHover.current) setOpen(false);
+            }}
+            onPointerDown={cancelHover}
+          />
+        }
+      >
+        <Info className="h-4 w-4" />
       </PopoverTrigger>
       <PopoverContent
         align="start"
         aria-label="About this page"
         className="max-w-[calc(100vw-1.25rem)] text-sm"
-        onOpenAutoFocus={(event) => {
-          // Hover must not move focus away from what the reader is doing.
-          if (openedOnHover.current) event.preventDefault();
-        }}
-        onCloseAutoFocus={(event) => {
-          if (openedOnHover.current) event.preventDefault();
-        }}
+        // Hover keeps focus on the reader's current control.
+        initialFocus={() => !openedOnHover.current}
+        finalFocus={() => !openedOnHover.current}
       >
         {children}
       </PopoverContent>
