@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Edit } from "lucide-react";
 import { DiveSiteIcon } from "@/components/icons/dive-site-icon";
-import type { DiveSite } from "@/lib/api/dive-sites";
+import { isCommonsSite, type DiveSite } from "@/lib/api/dive-sites";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { DeleteMenuItem } from "@/components/ui/item-actions-menu";
 import {
@@ -14,6 +14,7 @@ import {
   type BackdropCardFigure,
 } from "@/components/ui/backdrop-card";
 import { MapBackdrop } from "@/components/map/map-backdrop";
+import { CommonsBadge, CommonsCredit } from "@/components/sites/commons-site";
 import { diveSiteFacts } from "@/components/sites/dive-site-facts";
 import { FactsLine } from "@/components/ui/icon-fact";
 import { useUnits } from "@/hooks/useUnits";
@@ -37,6 +38,7 @@ export function DiveSiteCard({
 }: DiveSiteCardProps) {
   const units = useUnits();
   const facts = diveSiteFacts(site, units);
+  const inCommons = isCommonsSite(site);
   const figures: BackdropCardFigure[] = [
     { label: "Dives", value: site.dive_count ?? 0 },
     {
@@ -59,9 +61,13 @@ export function DiveSiteCard({
         <>
           <DropdownMenuItem onClick={onEdit}>
             <Edit className="h-4 w-4 mr-2" />
-            Edit
+            {inCommons ? "Edit notes and tags" : "Edit"}
           </DropdownMenuItem>
-          <DeleteMenuItem onSelect={onDelete} disabled={isDeleting} />
+          <DeleteMenuItem
+            onSelect={onDelete}
+            disabled={isDeleting}
+            label={inCommons ? "Remove from your sites" : undefined}
+          />
         </>
       }
       backdrop={(coveredBottom) => (
@@ -95,6 +101,13 @@ export function DiveSiteCard({
         </div>
       )}
       <BackdropCardFigures figures={figures} />
+      {/* Lifted over the stretched link, which would swallow the credit's own. */}
+      {inCommons && (
+        <div className="relative z-10 flex flex-wrap items-center gap-2">
+          <CommonsBadge />
+          <CommonsCredit attribution={site.attribution} />
+        </div>
+      )}
     </BackdropCard>
   );
 }
