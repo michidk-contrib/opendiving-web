@@ -32,7 +32,7 @@ function TooltipContent({
       role="tooltip"
       sideOffset={sideOffset}
       className={cn(
-        "max-w-64 rounded-md border border-white/10 bg-tooltip px-2 py-1 text-xs text-tooltip-foreground shadow-lg",
+        "max-w-64 rounded-md border border-white/10 bg-tooltip px-2 py-1 text-xs text-tooltip-foreground shadow-lg [&>[data-slot=tooltip-arrow]]:hidden",
         className,
       )}
       render={(props, state) => (

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { page } from "vitest/browser";
 
 import {
@@ -11,7 +11,7 @@ import {
 import "@/app/globals.css";
 
 it.each(["top", "bottom", "left", "right"] as const)(
-  "joins the arrow to the %s tooltip with the same background",
+  "shows the %s tooltip without a pointer",
   async (side) => {
     await page.viewport(600, 500);
     render(
@@ -37,26 +37,8 @@ it.each(["top", "bottom", "left", "right"] as const)(
     if (!arrow) throw new Error("Tooltip arrow is missing");
 
     await expect.poll(() => tooltip.dataset.side).toBe(side);
-    await expect
-      .poll(() => {
-        const popup = tooltip.getBoundingClientRect();
-        const tip = arrow.getBoundingClientRect();
-        switch (side) {
-          case "top":
-            return tip.top < popup.bottom && tip.bottom > popup.bottom;
-          case "bottom":
-            return tip.top < popup.top && tip.bottom > popup.top;
-          case "left":
-            return tip.left < popup.right && tip.right > popup.right;
-          case "right":
-            return tip.left < popup.left && tip.right > popup.left;
-        }
-      })
-      .toBe(true);
-
-    expect(getComputedStyle(arrow).display).not.toBe("none");
-    expect(getComputedStyle(arrow).backgroundColor).toBe(
-      getComputedStyle(tooltip).backgroundColor,
-    );
+    await waitFor(() => expect(tooltip).toBeVisible());
+    expect(tooltip).toHaveTextContent("Create new");
+    expect(getComputedStyle(arrow).display).toBe("none");
   },
 );

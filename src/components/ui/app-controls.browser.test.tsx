@@ -6,7 +6,6 @@ import { Button, ButtonLink } from "./button";
 import { Label } from "./label";
 import { Switch } from "./switch";
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "./dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { DatePicker } from "./date-picker";
 import { DateTimePicker } from "./date-time-picker";
@@ -95,22 +94,6 @@ it("gives link buttons native navigation semantics and Enter handling", async ()
   expect(click).not.toHaveBeenCalled();
   await userEvent.keyboard("{Enter}");
   expect(click).toHaveBeenCalledOnce();
-});
-
-it("shows the tooltip arrow with the popup's background", async () => {
-  render(
-    <Tooltip open>
-      <TooltipTrigger>Details</TooltipTrigger>
-      <TooltipContent>More information</TooltipContent>
-    </Tooltip>,
-  );
-  const tooltip = await screen.findByRole("tooltip");
-  const arrow = tooltip.querySelector(":scope > [data-side]");
-  if (!arrow) throw new Error("Missing Base UI arrow");
-  expect(getComputedStyle(arrow).display).not.toBe("none");
-  expect(getComputedStyle(arrow).backgroundColor).toBe(
-    getComputedStyle(tooltip).backgroundColor,
-  );
 });
 
 it("lets application backdrop classes override geometry and color", async () => {
