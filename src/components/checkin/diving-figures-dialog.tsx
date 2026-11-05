@@ -6,7 +6,7 @@ import { Printer, RotateCcw } from "lucide-react";
 
 import { useEffectOnChange } from "@/hooks/useEffectOnChange";
 import { type DivingFigures } from "@/lib/checkin";
-import { unitLabel, unitSystemFor, type UnitSelection } from "@/lib/units";
+import { unitLabel, type UnitSystem } from "@/lib/units";
 import { dialogFormSubmit } from "@/lib/dialog-form";
 import {
   divingFiguresFromForm,
@@ -39,7 +39,7 @@ export interface DivingFiguresDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** The system the depth box shows and takes, the diver's own. */
-  units: UnitSelection;
+  units: UnitSystem;
   /** What the log itself says - where a fresh dialog opens, and what "Use logged figures" returns to. */
   logged: DivingFigures;
   /** The diver's correction, or null while the summary is printing the log's own figures. */
@@ -112,22 +112,24 @@ export function DivingFiguresDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Dives logged</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      step={1}
-                      name={field.name}
-                      ref={field.ref}
-                      onBlur={field.onBlur}
-                      value={field.value ?? ""}
-                      onChange={(event) => {
-                        const typed = parseInt(event.target.value, 10);
-                        field.onChange(Number.isNaN(typed) ? null : typed);
-                      }}
-                    />
-                  </FormControl>
+                  <FormControl
+                    render={
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        step={1}
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={field.value ?? ""}
+                        onChange={(event) => {
+                          const typed = parseInt(event.target.value, 10);
+                          field.onChange(Number.isNaN(typed) ? null : typed);
+                        }}
+                      />
+                    }
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -142,20 +144,22 @@ export function DivingFiguresDialog({
                       writes it: the number is the diver's own system and nothing
                       else on the row says which. */}
                   <FormLabel>Max depth ({unitLabel("depth", units)})</FormLabel>
-                  <FormControl>
-                    {/* Shows and takes the diver's own units while the value
-                        behind it stays metric, like every other depth box. */}
-                    <UnitNumberInput
-                      dimension="depth"
-                      units={unitSystemFor("depth", units)}
-                      min={0}
-                      value={field.value}
-                      onChange={field.onChange}
-                      name={field.name}
-                      ref={field.ref}
-                      onBlur={field.onBlur}
-                    />
-                  </FormControl>
+                  {/* Shows and takes the diver's own units while the value
+                      behind it stays metric, like every other depth box. */}
+                  <FormControl
+                    render={
+                      <UnitNumberInput
+                        dimension="depth"
+                        units={units}
+                        min={0}
+                        value={field.value}
+                        onChange={field.onChange}
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                      />
+                    }
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -167,9 +171,14 @@ export function DivingFiguresDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Last dive</FormLabel>
-                  <FormControl>
-                    <DatePicker value={field.value} onChange={field.onChange} />
-                  </FormControl>
+                  <FormControl
+                    render={
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    }
+                  />
                   <FormMessage />
                 </FormItem>
               )}

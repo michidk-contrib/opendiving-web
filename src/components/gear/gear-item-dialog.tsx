@@ -42,6 +42,7 @@ import { useEffectOnChange } from "@/hooks/useEffectOnChange";
 import { VolumeCombobox } from "@/components/dives/volume-combobox";
 import { UnitNumberInput } from "@/components/unit-number-input";
 import { useUnits } from "@/hooks/useUnits";
+import { unitLabel } from "@/lib/units";
 
 interface GearItemDialogProps {
   open: boolean;
@@ -219,9 +220,11 @@ export function GearItemDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. MK25 EVO" autoFocus {...field} />
-                  </FormControl>
+                  <FormControl
+                    render={
+                      <Input placeholder="e.g. MK25 EVO" autoFocus {...field} />
+                    }
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -233,13 +236,15 @@ export function GearItemDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Brand</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g. Scubapro"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                  </FormControl>
+                  <FormControl
+                    render={
+                      <Input
+                        placeholder="e.g. Scubapro"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    }
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -251,15 +256,17 @@ export function GearItemDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type</FormLabel>
-                  <FormControl>
-                    <NativeSelect {...field} value={field.value ?? ""}>
-                      <option value="">No type</option>
-                      {GEAR_TYPES.map((gearType) => (
-                        <option key={gearType} value={gearType}>
-                          {gearTypeLabel(gearType)}
-                        </option>
-                      ))}
-                    </NativeSelect>
+                  <FormControl
+                    render={
+                      <NativeSelect {...field} value={field.value ?? ""} />
+                    }
+                  >
+                    <option value="">No type</option>
+                    {GEAR_TYPES.map((gearType) => (
+                      <option key={gearType} value={gearType}>
+                        {gearTypeLabel(gearType)}
+                      </option>
+                    ))}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -276,13 +283,15 @@ export function GearItemDialog({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center gap-2">
-                    <FormControl>
-                      <Switch
-                        id="gear-rented"
-                        checked={!!field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
+                    <FormControl
+                      render={
+                        <Switch
+                          id="gear-rented"
+                          checked={!!field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      }
+                    />
                     <FormLabel
                       htmlFor="gear-rented"
                       className="cursor-pointer font-normal"
@@ -301,14 +310,16 @@ export function GearItemDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Serial number, service dates, sizing..."
-                      className="min-h-[80px]"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                  </FormControl>
+                  <FormControl
+                    render={
+                      <Textarea
+                        placeholder="Serial number, service dates, sizing..."
+                        className="min-h-[80px]"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    }
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -336,7 +347,7 @@ export function GearItemDialog({
 // A cylinder's three facts. Its own component so only a dialog showing them reads the
 // diver's units, which the pressure box converts.
 function CylinderFactFields({ control }: { control: Control<GearItemInput> }) {
-  const { preferences: units, unitLabel, unitSystemFor } = useUnits();
+  const units = useUnits();
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -346,13 +357,15 @@ function CylinderFactFields({ control }: { control: Control<GearItemInput> }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Volume (L)</FormLabel>
-              <FormControl>
-                <VolumeCombobox
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="e.g. 11.1"
-                />
-              </FormControl>
+              <FormControl
+                render={
+                  <VolumeCombobox
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="e.g. 11.1"
+                  />
+                }
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -362,18 +375,22 @@ function CylinderFactFields({ control }: { control: Control<GearItemInput> }) {
           name="working_pressure"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Working pressure ({unitLabel("pressure")})</FormLabel>
-              <FormControl>
-                <UnitNumberInput
-                  dimension="pressure"
-                  units={unitSystemFor("pressure")}
-                  min={0}
-                  placeholderValue={232}
-                  {...field}
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              </FormControl>
+              <FormLabel>
+                Working pressure ({unitLabel("pressure", units)})
+              </FormLabel>
+              <FormControl
+                render={
+                  <UnitNumberInput
+                    dimension="pressure"
+                    units={units}
+                    min={0}
+                    placeholderValue={232}
+                    {...field}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                }
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -385,15 +402,15 @@ function CylinderFactFields({ control }: { control: Control<GearItemInput> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Material</FormLabel>
-            <FormControl>
-              <NativeSelect {...field} value={field.value ?? ""}>
-                <option value="">Not recorded</option>
-                {CYLINDER_MATERIALS.map((material) => (
-                  <option key={material} value={material}>
-                    {cylinderMaterialLabel(material)}
-                  </option>
-                ))}
-              </NativeSelect>
+            <FormControl
+              render={<NativeSelect {...field} value={field.value ?? ""} />}
+            >
+              <option value="">Not recorded</option>
+              {CYLINDER_MATERIALS.map((material) => (
+                <option key={material} value={material}>
+                  {cylinderMaterialLabel(material)}
+                </option>
+              ))}
             </FormControl>
             <FormMessage />
           </FormItem>
