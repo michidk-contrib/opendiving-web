@@ -11,7 +11,7 @@ import {
 // that forgets `render` isolation still can't leak DOM into the next one.
 afterEach(cleanup);
 
-// jsdom implements neither, and Radix (dialogs, selects, popovers) and the app's own
+// jsdom implements neither, and Base UI (dialogs, selects, popovers) and the app's own
 // responsive hooks both reach for them on mount. Without these, every test that
 // renders a dialog throws before it reaches its assertion.
 Object.defineProperty(window, "matchMedia", {
@@ -42,8 +42,11 @@ window.ResizeObserver = class {
 installIntersectionObserverStub();
 afterEach(clearIntersectionObservers);
 
-// Radix's popper measures with these; jsdom reports zeroes and warns without them.
+// Popup positioning measures with these; jsdom reports zeroes and warns without them.
 Element.prototype.scrollIntoView = vi.fn();
+
+// Base UI waits for viewport animations; jsdom has no Web Animations API.
+Element.prototype.getAnimations = () => [];
 
 // The calendar's swipe captures the pointer once a drag passes its threshold, and
 // jsdom implements none of the three, so a test swiping it would throw.
