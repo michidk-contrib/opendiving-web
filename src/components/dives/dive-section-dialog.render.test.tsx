@@ -185,10 +185,13 @@ describe("the Environment dialog on a dive with fetched conditions", () => {
       }),
     );
 
+    // Wait for the dialog's initial focus before editing a field inside it.
+    await waitFor(() => expect(screen.getByRole("dialog")).toHaveFocus());
     const air = screen.getByRole("spinbutton", { name: /air temperature/i });
     await userEvent.clear(air);
     await userEvent.type(air, "30");
 
+    expect(air).toHaveValue(30);
     expect(marked()).toHaveLength(0);
     expect(screen.queryByText(/Open-Meteo/)).toBeNull();
   });

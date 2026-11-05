@@ -1,3 +1,4 @@
+import ts from "typescript";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,6 +23,12 @@ import { describe, expect, it } from "vitest";
 // visible text with `aria-label` (`entry-unit-toggle`, `data-export-card`,
 // `dive-form-fields-menu` all do, each for a reason `DECISIONS.md` records) is
 // left alone; a button with nothing but an icon in it is not.
+//
+// One shape is exempt: a button rendered by a `PopoverTrigger` that opens it
+// from its own `onPointerEnter`. Its hover shows a passage rather than its name,
+// so it names itself. A popover trigger without one shows nothing until clicked,
+// so it is not exempt. See "A button that only shows a passage names itself" in
+// `DECISIONS.md`.
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.resolve(here, "..");
 
@@ -161,55 +168,75 @@ const childrenRenderText = (inner: string): boolean => {
   return outsideExpressions.trim().length > 0;
 };
 
-// Every `<Button …>` / `<button …>` open tag in the file, with the element's
-// children, as `{ line, attributes, children }`.
+// Parse render composition so a trigger's children and name belong to the Button it renders.
 const buttonElements = (original: string) => {
-  const src = blankComments(original);
-  const found: { line: number; attributes: string; children: string }[] = [];
-  const opens = /<(Button|button)\b/g;
-  let open: RegExpExecArray | null;
-
-  while ((open = opens.exec(src))) {
-    const tag = open[1];
-    let depth = 0;
-    let quote: string | null = null;
-    let i = open.index + open[0].length;
-    for (; i < src.length; i++) {
-      const c = src[i];
-      if (quote) {
-        if (c === quote && src[i - 1] !== "\\") quote = null;
-        continue;
-      }
-      if (c === '"' || c === "'" || c === "`") quote = c;
-      else if (c === "{") depth++;
-      else if (c === "}") depth--;
-      else if (c === ">" && depth === 0) break;
-    }
-    const attributes = src.slice(open.index, i + 1);
-    let children = "";
-    if (!attributes.endsWith("/>")) {
-      const pairs = new RegExp(`<${tag}\\b|</${tag}>`, "g");
-      pairs.lastIndex = i + 1;
-      let level = 1;
-      let pair: RegExpExecArray | null;
-      while ((pair = pairs.exec(src))) {
-        if (!pair[0].startsWith("</")) {
-          level++;
-          continue;
+  const file = ts.createSourceFile(
+    "control.tsx",
+    original,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const found: {
+    line: number;
+    attributes: string;
+    children: string;
+    triggersOwnPassage: boolean;
+  }[] = [];
+  const visit = (node: ts.Node) => {
+    if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
+      const tag = node.tagName.getText(file);
+      if (["Button", "ButtonLink", "button"].includes(tag)) {
+        let attributes = node.attributes.getText(file);
+        let children = ts.isJsxElement(node.parent)
+          ? node.parent.children.map((child) => child.getText(file)).join(" ")
+          : "";
+        let passage = false;
+        const rendered = ts.isJsxElement(node.parent) ? node.parent : node;
+        const expression = rendered.parent;
+        if (
+          ts.isJsxExpression(expression) &&
+          expression.expression === rendered &&
+          ts.isJsxAttribute(expression.parent) &&
+          expression.parent.name.getText(file) === "render"
+        ) {
+          const parent = expression.parent.parent.parent;
+          if (
+            (ts.isJsxOpeningElement(parent) ||
+              ts.isJsxSelfClosingElement(parent)) &&
+            /Trigger$/.test(parent.tagName.getText(file))
+          ) {
+            attributes +=
+              " " +
+              parent.attributes.properties
+                .filter(
+                  (attr) =>
+                    ts.isJsxAttribute(attr) &&
+                    attr.name.getText(file) !== "render",
+                )
+                .map((attr) => attr.getText(file))
+                .join(" ");
+            if (ts.isJsxElement(parent.parent))
+              children = parent.parent.children
+                .map((child) => child.getText(file))
+                .join(" ");
+            passage =
+              parent.tagName.getText(file) === "PopoverTrigger" &&
+              /\sonPointerEnter[=\s]/.test(" " + attributes);
+          }
         }
-        if (--level === 0) {
-          children = src.slice(i + 1, pair.index);
-          break;
-        }
+        found.push({
+          line:
+            file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1,
+          attributes: " " + attributes,
+          children,
+          triggersOwnPassage: passage,
+        });
       }
     }
-    found.push({
-      line: src.slice(0, open.index).split("\n").length,
-      attributes,
-      children,
-    });
-  }
-
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
   return found;
 };
 
@@ -265,14 +292,81 @@ describe("the visible-text rule", () => {
   });
 });
 
+const exempt = (src: string) =>
+  buttonElements(src).map(({ triggersOwnPassage }) => triggersOwnPassage);
+
+describe("a popover trigger that opens on hover", () => {
+  it("exempts the button it directly renders", () => {
+    expect(
+      exempt(`<PopoverTrigger render={
+        <Button aria-label="About this page" onPointerEnter={openSoon} />
+      }><Info /></PopoverTrigger>`),
+    ).toEqual([true]);
+  });
+
+  it("exempts nothing behind a wrapper, and no button without the trigger", () => {
+    expect(
+      exempt(`<PopoverTrigger render={
+        <span><Button aria-label="Delete" onPointerEnter={openSoon}><Trash2 /></Button></span>
+      } />
+      <Button aria-label="Edit" onPointerEnter={openSoon}><Edit /></Button>`),
+    ).toEqual([false, false]);
+  });
+
+  it("is required: a popover trigger without one shows nothing until clicked", () => {
+    expect(
+      exempt(`<PopoverTrigger render={
+        <Button aria-label="Notifications" />
+      }><Bell /></PopoverTrigger>`),
+    ).toEqual([false]);
+  });
+
+  it("does not extend to a tooltip trigger", () => {
+    expect(
+      exempt(`<TooltipTrigger render={
+        <Button aria-label="Delete" onPointerEnter={openSoon} />
+      }><Trash2 /></TooltipTrigger>`),
+    ).toEqual([false]);
+  });
+});
+
+describe("trigger render composition", () => {
+  it.each(["PopoverTrigger", "DialogTrigger", "DropdownMenuTrigger"])(
+    "reads visible children of %s",
+    (trigger) => {
+      const [button] = buttonElements(
+        `<${trigger} render={<Button aria-label="Save" />}>Save</${trigger}>`,
+      );
+      expect(childrenRenderText(button.children)).toBe(true);
+    },
+  );
+
+  it("reads the trigger's label on an icon-only button", () => {
+    const [button] = buttonElements(
+      '<DialogTrigger aria-label="Delete" render={<Button />}><Trash2 /></DialogTrigger>',
+    );
+    expect(button.attributes).toContain('aria-label="Delete"');
+    expect(childrenRenderText(button.children)).toBe(false);
+  });
+
+  it("does not assign wrapper children or labels to a nested button", () => {
+    const [button] = buttonElements(
+      '<DialogTrigger aria-label="Save" render={<span><Button aria-label="Delete"><Trash2 /></Button></span>}>Save</DialogTrigger>',
+    );
+    expect(button.attributes).not.toContain('aria-label="Save"');
+    expect(childrenRenderText(button.children)).toBe(false);
+  });
+});
+
 describe("icon buttons", () => {
   it("carry no accessible name that the hover hint does not also show", () => {
     const offenders = sourceFiles(SRC).flatMap((file) =>
       buttonElements(readFileSync(file, "utf8"))
         .filter(
-          ({ attributes, children }) =>
+          ({ attributes, children, triggersOwnPassage }) =>
             /\saria-label[=\s]/.test(attributes) &&
-            !childrenRenderText(children),
+            !childrenRenderText(children) &&
+            !triggersOwnPassage,
         )
         .map(({ line }) => `${path.relative(SRC, file)}:${line}`),
     );

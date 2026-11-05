@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DiveFormFieldsDialog } from "./dive-form-fields-dialog";
 import type { DiveFormPreset } from "@/lib/api/dive-form-presets";
@@ -76,6 +76,10 @@ function presetsStub(rows: DiveFormPreset[] | null): DiveFormPresets {
 }
 
 const saveAsBox = () => screen.getByRole("combobox", { name: /save as/i });
+
+// Base UI places the opening focus on an animation frame. Start interacting after it lands.
+const waitForDialogFocus = () =>
+  waitFor(() => expect(screen.getByRole("dialog")).toHaveFocus());
 
 describe("DiveFormFieldsDialog", () => {
   it("opens on the preset the fields already match", () => {
@@ -175,6 +179,8 @@ describe("DiveFormFieldsDialog", () => {
       />,
     );
 
+    await waitForDialogFocus();
+
     await user.click(saveAsBox());
 
     expect(screen.getAllByRole("option").map((row) => row.textContent)).toEqual(
@@ -192,6 +198,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presetsStub([BASIC, TECHNICAL])}
       />,
     );
+
+    await waitForDialogFocus();
     await user.click(saveAsBox());
 
     const highlighted = () =>
@@ -223,6 +231,8 @@ describe("DiveFormFieldsDialog", () => {
       />,
     );
 
+    await waitForDialogFocus();
+
     await user.clear(saveAsBox());
     await user.type(saveAsBox(), "bas");
 
@@ -241,6 +251,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presetsStub([BASIC, TECHNICAL])}
       />,
     );
+
+    await waitForDialogFocus();
 
     await user.clear(saveAsBox());
     await user.type(saveAsBox(), "Sidemount");
@@ -264,6 +276,8 @@ describe("DiveFormFieldsDialog", () => {
       />,
     );
 
+    await waitForDialogFocus();
+
     await user.click(screen.getByRole("switch", { name: "Altitude" }));
     expect(screen.getByRole("switch", { name: "Altitude" })).not.toBeChecked();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
@@ -284,6 +298,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presetsStub([BASIC, TECHNICAL])}
       />,
     );
+
+    await waitForDialogFocus();
 
     await user.click(screen.getByRole("switch", { name: "Altitude" }));
     expect(visibility.setHidden).not.toHaveBeenCalled();
@@ -307,6 +323,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presetsStub([BASIC, TECHNICAL])}
       />,
     );
+
+    await waitForDialogFocus();
 
     await user.click(screen.getByRole("switch", { name: "Altitude" }));
     await user.click(screen.getByRole("switch", { name: "Altitude" }));
@@ -333,6 +351,8 @@ describe("DiveFormFieldsDialog", () => {
       />,
     );
 
+    await waitForDialogFocus();
+
     await userEvent.click(screen.getByRole("switch", { name: "Altitude" }));
     await dismiss();
 
@@ -351,6 +371,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presetsStub([BASIC, TECHNICAL])}
       />,
     );
+
+    await waitForDialogFocus();
 
     await user.click(screen.getByRole("switch", { name: "Altitude" }));
     await user.click(saveAsBox());
@@ -374,6 +396,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presetsStub([BASIC, TECHNICAL])}
       />,
     );
+
+    await waitForDialogFocus();
 
     await user.clear(saveAsBox());
     await user.type(saveAsBox(), "Sidemount");
@@ -400,6 +424,8 @@ describe("DiveFormFieldsDialog", () => {
         presets={presets}
       />,
     );
+
+    await waitForDialogFocus();
 
     await user.click(screen.getByRole("switch", { name: "Altitude" }));
     await user.clear(saveAsBox());

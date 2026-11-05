@@ -210,23 +210,9 @@ describe("DiveCard", () => {
     ]);
   });
 
-  it("shows the average depth in place of a temperature it has not got", () => {
-    const item = card({ dive: dive({ bottom_temperature: undefined }) });
-
-    expect(figuresOf(item)).toEqual([
-      ["Dive time", "45min"],
-      ["Max depth", "31 m"],
-      ["Avg depth", "18 m"],
-    ]);
-  });
-
-  it("leaves out a temperature it has not got when it has no average depth either", () => {
+  it("leaves out a temperature it has not got, and no average depth takes its place", () => {
     const item = card({
-      dive: dive({
-        max_depth: undefined,
-        avg_depth: undefined,
-        bottom_temperature: undefined,
-      }),
+      dive: dive({ max_depth: undefined, bottom_temperature: undefined }),
     });
 
     expect(figuresOf(item)).toEqual([
@@ -235,15 +221,45 @@ describe("DiveCard", () => {
     ]);
   });
 
-  it("shows depths of zero rather than leaving them out", () => {
+  it("shows a depth of zero rather than leaving it out", () => {
     const item = card({
-      dive: dive({ max_depth: 0, avg_depth: 0, bottom_temperature: undefined }),
+      dive: dive({ max_depth: 0, bottom_temperature: undefined }),
     });
 
     expect(figuresOf(item)).toEqual([
       ["Dive time", "45min"],
       ["Max depth", "0 m"],
-      ["Avg depth", "0 m"],
+    ]);
+  });
+
+  it("counts the species seen in the slot a missing temperature leaves", () => {
+    const item = card({
+      dive: dive({ bottom_temperature: undefined, species_count: 4 }),
+    });
+
+    expect(figuresOf(item)).toEqual([
+      ["Dive time", "45min"],
+      ["Max depth", "31 m"],
+      ["Species seen", "4"],
+    ]);
+  });
+
+  it("leaves the species off a card whose three slots are full", () => {
+    expect(figuresOf(card({ dive: dive({ species_count: 4 }) }))).toEqual([
+      ["Dive time", "45min"],
+      ["Max depth", "31 m"],
+      ["Water temp", "24°C"],
+    ]);
+  });
+
+  it("leaves the species off a dive that saw none", () => {
+    const item = card({
+      dive: dive({ bottom_temperature: undefined, species_count: 0 }),
+    });
+
+    expect(figuresOf(item)).toEqual([
+      ["Dive time", "45min"],
+      ["Max depth", "31 m"],
     ]);
   });
 
@@ -305,15 +321,31 @@ describe("DiveCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("ends its line with a paperclip where the dive holds a recording", () => {
-    expect(card({ dive: dive({ recording_count: 1 }) })).toHaveTextContent(
-      "Apr 4, 2026, 10:04 · Recording attached",
+  it("tags a dive that owed decompression after its kind", () => {
+    const item = card({
+      dive: dive({ type: "closed_circuit", deco: true, tags: ["Wreck"] }),
+    });
+
+    expect(item).toHaveTextContent(
+      "CCRClosed circuitDecoDecompression diveWreckDive #212",
     );
   });
 
-  it("draws no paperclip for a dive with no recording", () => {
+  it("ends its line with a dive computer where one recorded the dive", () => {
+    expect(card({ dive: dive({ recording_count: 1 }) })).toHaveTextContent(
+      "Apr 4, 2026, 10:04 · 1 dive computer",
+    );
+  });
+
+  it("draws as many dive computers as recorded the dive", () => {
+    const item = card({ dive: dive({ recording_count: 3 }) });
+    expect(item).toHaveTextContent("Apr 4, 2026, 10:04 · 3 dive computers");
+    expect(item.querySelectorAll("svg.lucide-dive-computer")).toHaveLength(3);
+  });
+
+  it("draws no dive computer for a dive with no recording", () => {
     expect(card({ dive: dive({ recording_count: 0 }) })).not.toHaveTextContent(
-      "Recording attached",
+      "dive computer",
     );
   });
 

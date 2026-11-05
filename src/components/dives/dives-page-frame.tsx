@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, type ReactNode, type Ref } from "react";
-import Link from "next/link";
 import { CloudUpload, Plus } from "lucide-react";
 import { DiveIcon } from "@/components/logo";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { HERO_BODY, IndexHero } from "@/components/ui/map-hero";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -109,18 +108,14 @@ export function DivesPageFrame({
         headingRef={headingRef}
         actions={
           <>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/import">
-                <CloudUpload className="h-4 w-4 mr-2" />
-                Import
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/dives/new">
-                <Plus className="h-4 w-4 mr-2" />
-                Log new dive
-              </Link>
-            </Button>
+            <ButtonLink variant="ghost" size="sm" href="/import">
+              <CloudUpload className="h-4 w-4 mr-2" />
+              Import
+            </ButtonLink>
+            <ButtonLink size="sm" href="/dives/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Log new dive
+            </ButtonLink>
           </>
         }
       />
@@ -181,12 +176,10 @@ export function DivesPageFrame({
                   title="No dives logged yet"
                   description="Start by adding your first dive!"
                   action={
-                    <Button asChild>
-                      <Link href="/dives/new">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Log your first dive
-                      </Link>
-                    </Button>
+                    <ButtonLink href="/dives/new">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Log your first dive
+                    </ButtonLink>
                   }
                 />
               )}

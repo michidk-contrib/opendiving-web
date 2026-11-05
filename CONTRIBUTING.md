@@ -66,7 +66,7 @@ both clean.
 
 ```
 src/app/            App Router pages, one directory per route
-src/components/     feature components (dives/, gear/, ...) + ui/ for shadcn primitives
+src/components/     feature components (dives/, gear/, ...) + ui/ for Base UI wrappers
 src/lib/api/        axios clients, one module per API area
 src/lib/validations/  Zod schemas backing the forms
 src/hooks/          shared hooks (pagination, auth guards, drag-sort, ...)
@@ -74,9 +74,13 @@ src/contexts/       AuthContext
 src/map-renderer/   the map renderer, a Node program shipped in the same image
 ```
 
-Components in `src/components/ui/` come from shadcn/ui — prefer adding a new primitive there over
-hand-rolling one in a feature directory. Charts (the dive profile, the consumption trend) are
-hand-written SVG on purpose; there is no charting dependency and we'd like to keep it that way.
+Components in `src/components/ui/` wrap the official shadcn Base UI components in
+`src/components/ui/primitives/`. We own the generated source. Put app styles and behavior in the
+wrappers where possible; review CLI overwrites and reapply the changes listed in `DECISIONS.md`
+under "UI controls use Base UI". `components.json` directs shadcn CLI additions to the generated
+directory. Add shared controls to `ui/` rather than hand-rolling one in a feature directory. Charts
+(the dive profile, the consumption trend) are hand-written SVG on purpose; there is no charting
+dependency and we'd like to keep it that way.
 
 Tests are colocated: `foo.ts` gets `foo.test.ts` next to it, run by Vitest. Most of them use jsdom;
 a file named `foo.browser.test.tsx` belongs to the second project instead and runs in real Chromium
@@ -249,6 +253,9 @@ A failing run leaves a trace under `test-results/`; open one with `npx playwrigh
   whatever your branch carried. Sign if you already sign — nobody will ask you to set GPG up for a
   pull request.
 - Branch off `main`, keep the PR focused on one thing.
+- **Your branch never needs to be current with `main`.** Once a PR is green and reviewed, a
+  maintainer adds it to the merge queue, which squashes it onto `main` as it then stands, runs the
+  required checks on that result and lands it. Rebase only to resolve a conflict.
 - Title the PR as a conventional commit — `<type>[(scope)][!]: <description>`, e.g.
   `feat: chart the dive profile on the dive detail page`. Types: `feat`, `fix`, `refactor`, `docs`,
   `test`, `chore`, `perf`, `ci`, `build`, `revert`. A CI check enforces this, and re-runs when you

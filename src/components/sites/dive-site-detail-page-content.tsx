@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -10,7 +9,7 @@ import { useDeleteResource } from "@/hooks/useDeleteResource";
 import { useReturnTo, useWithReturnTo } from "@/hooks/useReturnTo";
 import { diveSitesAPI, DiveSite } from "@/lib/api/dive-sites";
 import { RecentDivesCard } from "@/components/dives/recent-dives-card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   DeleteMenuItem,
@@ -22,6 +21,7 @@ import { DiveSiteDialog } from "@/components/sites/dive-site-dialog";
 import { DiveSiteInfoCard } from "@/components/sites/dive-site-info-card";
 import { DiveSiteSpeciesCard } from "@/components/sites/dive-site-species-card";
 import { DiveSiteHero } from "@/components/sites/dive-site-hero";
+import { DiveSiteInfoDialog } from "@/components/sites/dive-site-info-dialog";
 import {
   HERO_BODY,
   HERO_CONTROL,
@@ -101,18 +101,18 @@ export function DiveSiteDetailPageContent() {
         back={back}
         actions={
           <>
-            <Button variant="ghost" size="sm" className={HERO_CONTROL} asChild>
-              <Link
-                href={withReturnTo(
-                  `/dives/new?dive_site_uuid=${diveSite.uuid}`,
-                )}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Log a dive
-              </Link>
-            </Button>
+            <ButtonLink
+              variant="ghost"
+              size="sm"
+              className={HERO_CONTROL}
+              href={withReturnTo(`/dives/new?dive_site_uuid=${diveSite.uuid}`)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Log a dive
+            </ButtonLink>
+            <DiveSiteInfoDialog site={diveSite} />
             <ItemActionsMenu variant="ghost" size="sm" className={HERO_CONTROL}>
-              <DropdownMenuItem onSelect={() => setIsEditOpen(true)}>
+              <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </DropdownMenuItem>

@@ -1,9 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
 import { Check, FilePen, Plus, Save, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { ButtonSpinner } from "@/components/ui/button-spinner";
 import { FormApiError } from "@/components/ui/form-api-error";
 import { useStuckAtEdge } from "@/hooks/useStuckAtEdge";
@@ -82,9 +81,9 @@ export function DiveFormActions({
     >
       <FormApiError error={error} />
       <div className="flex flex-wrap justify-end gap-4 max-sm:gap-2">
-        <Button type="button" variant="outline" asChild>
-          <Link href={cancelHref}>Cancel</Link>
-        </Button>
+        <ButtonLink type="button" variant="outline" href={cancelHref}>
+          Cancel
+        </ButtonLink>
         {draft?.onDiscard && (
           <Button
             type="button"

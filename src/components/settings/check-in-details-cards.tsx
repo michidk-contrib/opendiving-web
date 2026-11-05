@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   ClipboardList,
   IdCard,
@@ -10,7 +9,7 @@ import {
 } from "lucide-react";
 
 import type { CheckinGroup } from "@/lib/validations/checkin-details";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import {
   CARD_TITLE_ACTION,
   CARD_TITLE_ROW,
@@ -80,14 +79,14 @@ export function CheckInDetailsCard() {
             <ClipboardList className="h-5 w-5" />
             Check-in Details
           </CardTitle>
-          <Button
+          <ButtonLink
             variant="outline"
             size="sm"
             className={CARD_TITLE_ACTION}
-            asChild
+            href="/checkin"
           >
-            <Link href="/checkin">Check-in</Link>
-          </Button>
+            Check-in
+          </ButtonLink>
         </div>
         <CardDescription>
           What a dive shop asks for at the desk. Fill in what you want to hand

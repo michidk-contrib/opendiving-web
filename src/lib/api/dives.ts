@@ -682,6 +682,15 @@ export interface Dive {
   // How many recordings the dive holds. A list-response field, standing in for
   // `recordings` where the list doesn't send them; absent on the detail response.
   recording_count?: number;
+  // Whether the profile the dive page charts held the diver to a deco ceiling.
+  // A list-response field, standing in for that profile's `max_ceiling` where
+  // the list doesn't send recordings; absent on the detail response. Read it
+  // through `owedDeco()` (`lib/dive-recordings.ts`), which answers for both.
+  deco?: boolean;
+  // How many species the dive's sightings name. A list-response field, standing
+  // in for `sightings` where the list doesn't send them; absent on the detail
+  // response.
+  species_count?: number;
 }
 
 /** A recording's depth curve at a dive card's resolution. */
@@ -819,6 +828,12 @@ export interface Recording extends RecordingReadouts {
   // `formatDive*` helpers and never with `new Date(...)` and local getters. The
   // profile's axis counts from this instant.
   started_at?: string | null;
+  // Where this recording's own 0 lies on one time axis the dive's recordings
+  // share, in milliseconds from the earliest of them - the API places them by
+  // their clocks. Null where it cannot be placed (no samples, no start, or a
+  // start too far from the others'), and absent from an older API: either way
+  // the recording is charted on its own axis.
+  start_on_dive_axis?: number | null;
   // In attach order.
   files: DiveFileInfo[];
   // Summary of this recording's samples, or absent when it has none. The series

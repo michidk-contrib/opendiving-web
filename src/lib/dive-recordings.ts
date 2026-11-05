@@ -266,11 +266,11 @@ export function diveRecordings(dive: Dive): Recording[] {
 }
 
 /**
- * Whether anything recorded the dive: the list row's count, or the detail
- * response's recordings.
+ * How many computers recorded the dive, one recording each: the list row's
+ * count, or the detail response's recordings.
  */
-export function hasRecording(dive: Dive): boolean {
-  return (dive.recording_count ?? dive.recordings?.length ?? 0) > 0;
+export function recordingCount(dive: Dive): number {
+  return dive.recording_count ?? dive.recordings?.length ?? 0;
 }
 
 /**
@@ -280,6 +280,19 @@ export function hasRecording(dive: Dive): boolean {
  */
 export function primaryRecording(dive: Dive): Recording | null {
   return diveRecordings(dive)[0] ?? null;
+}
+
+/**
+ * Whether the dive owed decompression: the list row's flag, or a ceiling on
+ * the profile the dive page charts first - the first recording with one, which
+ * is the API's own choice for that flag.
+ */
+export function owedDeco(dive: Dive): boolean {
+  if (dive.deco != null) return dive.deco;
+  const charted = diveRecordings(dive).find(
+    (recording) => recording.profile != null,
+  );
+  return charted?.profile?.max_ceiling != null;
 }
 
 /**

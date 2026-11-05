@@ -57,7 +57,7 @@ export interface UnitNumberInputProps extends Omit<
  *
  * Renders the `<input>` and nothing else, so the callers' `<div className="relative">`
  * icon wrappers and their `FormControl` placement inside them are untouched - and so
- * the id and `aria-*` that `FormControl`'s `Slot` hands down land on a labelable
+ * the id and `aria-*` that `FormControl` forwards through render composition land on a labelable
  * element rather than on a wrapper (DECISIONS.md, "`FormControl` only labels what it
  * can reach").
  *

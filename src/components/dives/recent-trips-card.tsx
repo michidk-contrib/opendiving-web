@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
 import { tripsAPI, Trip } from "@/lib/api/trips";
 import { useInfiniteResource } from "@/hooks/useInfiniteResource";
 import { useDeleteResource } from "@/hooks/useDeleteResource";
@@ -13,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useQuickCreate } from "@/components/layout/quick-create";
 import { DeleteWithReassignDialog } from "@/components/dives/delete-with-reassign-dialog";
@@ -72,14 +71,14 @@ export function RecentTripsCard() {
             <Luggage className="h-5 w-5" />
             Recent Trips
           </CardTitle>
-          <Button
+          <ButtonLink
             variant="outline"
             size="sm"
             className={CARD_TITLE_ACTION}
-            asChild
+            href="/trips"
           >
-            <Link href="/trips">View all trips</Link>
-          </Button>
+            View all trips
+          </ButtonLink>
         </div>
       </CardHeader>
       <CardContent>

@@ -804,6 +804,22 @@ export default async function PrivacyPage() {
                 </p>
               )}
               <p className="text-foreground mb-4">
+                The paragraphs above describe a browser. The OpenDiving app on a
+                phone draws a map of its own in four places: the form to add a
+                dive site and the search for a site&rsquo;s location, the form
+                to add a trip, and the form to add a contact, which loads one
+                only when you ask it to show the map. It draws these maps only
+                where this server draws tiles, so on a copy that draws none
+                those forms show no map. To draw one, the OpenDiving app names
+                the phone&rsquo;s language to this server when it asks for the
+                map&rsquo;s style, and fetches the map directly from the same
+                basemap provider, which sees the phone&rsquo;s IP address, the
+                part of the world on screen, the OpenDiving app&rsquo;s name and
+                version and the iOS version that its requests&rsquo; User-Agent
+                header names, and the language settings that their
+                Accept-Language header names, and nothing of your account.
+              </p>
+              <p className="text-foreground mb-4">
                 If you run your own copy of OpenDiving you can point it at a
                 basemap you serve yourself, and none of this leaves your
                 machine.
@@ -1385,8 +1401,8 @@ export default async function PrivacyPage() {
                 6.1 Account Control
               </h3>
               <p className="text-foreground mb-4">
-                From Settings and the Import and Export pages, without asking
-                anyone, you can:
+                From Settings and the Import page, without asking anyone, you
+                can:
               </p>
               <ul className="list-disc list-inside text-foreground mb-4 space-y-2">
                 <li>Update your profile and account information</li>
@@ -1460,15 +1476,15 @@ export default async function PrivacyPage() {
               </ul>
               <p className="text-foreground mb-4">
                 The first four need no request: access, correction, deletion and
-                portability are all buttons in Settings or on the Export page,
-                and they act immediately rather than being forwarded to
-                somebody. {mapTiles ? "Seven" : "Six"} things sit outside those
-                buttons, and naming them is better than letting that sentence
-                read wider than it is. The email address you sign in with, your
-                username, the list of signed-in devices and your API keys are in
-                Settings but are not part of the export: they are your account
-                on this copy rather than your logbook, and the username only
-                names the file you download.
+                portability are all buttons in Settings, and they act
+                immediately rather than being forwarded to somebody.{" "}
+                {mapTiles ? "Seven" : "Six"} things sit outside those buttons,
+                and naming them is better than letting that sentence read wider
+                than it is. The email address you sign in with, your username,
+                the list of signed-in devices and your API keys are in Settings
+                but are not part of the export: they are your account on this
+                copy rather than your logbook, and the username only names the
+                file you download.
                 {mapTiles && (
                   <>
                     {" "}
@@ -2138,8 +2154,8 @@ export default async function PrivacyPage() {
               <p className="text-foreground mb-4">
                 Most of what people write to a privacy address to ask for, you
                 can simply do. Exporting everything you have entered and
-                bringing a logbook back in are buttons on the Export and Import
-                pages, and deleting your account is one in Settings; they work
+                deleting your account are buttons in Settings, and bringing a
+                logbook back in is one on the Import page; they work
                 immediately, they need nobody&rsquo;s approval, and no request
                 has to be sent to anyone.
               </p>
