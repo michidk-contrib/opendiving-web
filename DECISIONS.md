@@ -5667,22 +5667,28 @@ sent to a dive already in it.
 an offsetless date-time, ending the state; the layout stays for the form's life so the time box is
 not swapped out mid-entry. The create form never takes a bare date.
 
-## The Import page renders a plan, not a result, and the two are one shape
+## The Import page renders the import the server holds
 
-Import is `POST /import/logbook/preview` then `POST /import/logbook` with the same files and the
-preview's `token`; `/import` renders both reports through one `ImportDiveTable` and one
-`ImportReportView`, so an approved plan and its result are comparable. The files stay in page state
-beside the token because the API hashes the parts again and refuses a token minted for another set.
+`POST /imports` takes the files once and answers with the review; the apply sends no bytes, so the
+page holds no files and no plan. What `/import` draws is the account's state: `GET /imports/pending`
+decides between the review and the picker, which is why any device opens the same import and nothing
+on the page polls. `ImportReview` renders a pending import and an applied one, at `/import` and
+`/import/[id]`, so an approved review and its result are comparable. A result lives at its own
+address: `/import` stays mounted and reads the pending import each time it is shown. A 409 or a 404
+from the apply or the discard means another device got there first, or the import expired.
 
-`restored` keeps its own column, never folded into `created`: un-deleting is the number a backup
-restore came for. Notes are a persistent list, never a toast; a non-zero `notes_truncated` marks the
-list incomplete and says the counts are not.
+A bare document's `not_contained` files are expected, so `file_not_contained` carries no kind. An
+unrecognised code is information, not a warning.
 
-A bare document's `not_contained` files are expected, so `file_not_contained` carries no kind and
-reads as information, and `fileRestoreHint` says to import the archive.
-`record_remapped_references_follow` and `record_remapped_references_stay` are two sentences, one per
-contract. An unrecognised code is information, not a warning — the `certificationAgencyLabel` and
-`collectionLabel` stance.
+## The review's cards hide the unchanged, and the panel lists the writer's changes
+
+A diver wants to know what an import adds and what it changes, so a card is drawn for a `new` or
+`modified` row and nothing else; the summary line counts the rest and links to the log, which names
+them. `describeImportChange` labels `changes` by member and falls back to the path, because the list
+is the writer's: a table of the members this build knows would hide what a later API writes.
+
+_Rejected:_ a card per row, which buries two changes under a re-import's hundreds of unchanged
+dives; and a client-side diff of two dives, a second account of the write.
 
 ## An import note's tone comes from its kind, and nothing else
 
@@ -5719,12 +5725,12 @@ fails to compile; `logbook-import.test.ts` restates the map as an independent li
 the same `Record`.
 
 The only lockstep part: the API's list comes from `divejson.read_formats()`, which a Renovate bump
-moves, so a reader can reach the Import page before this repository names it. A file's `format`
-renders through `importSourceLabel`, de-snaking the id until a label exists (`suunto_xml` is
-`"Suunto DM5 XML"`); a note's `code` and `kind` are opaque strings, so an unfamiliar one reads as
-information and `noteKindLabel` de-snakes the kind; the form's picker alone does not widen — a new
-format is unpickable there until its extension lands. The Import page filters nothing, so it takes
-the new format at once.
+moves, so a reader can reach the Import page before this repository names it. A stored file's
+`parser_key` renders through `importSourceLabel`, de-snaking the id until a label exists
+(`suunto_xml` is `"Suunto DM5 XML"`); a note's `code` and `kind` are opaque strings, so an
+unfamiliar one reads as information and `noteKindLabel` de-snakes the kind; the form's picker alone
+does not widen — a new format is unpickable there until its extension lands. The Import page filters
+nothing, so it takes the new format at once.
 
 Nothing in the browser parses a dive file or groups a note; the API sends the report's notes
 grouped, and this side owns only presentation, including the "and N more" count (`count` minus the
@@ -5735,7 +5741,7 @@ three `wheres` sent).
 The API reads the dive form's file through the converter logbook import uses, so the form's picker
 offers `DIVE_COMPUTER_FILE_ACCEPT` — the flattened `LOGBOOK_IMPORT_SOURCE_EXTENSIONS`, without
 `.divejson` and `.zip`, which the parse route refuses — and a stored file's `parser_key` renders
-through `importSourceLabel`, as an import's `members` rows do. The ids only an import reports
+through `importSourceLabel`, in a new dive's review as on its page. The ids only an import reports
 (`divejson`, `archive`, `zip`) are labelled in a map of their own, so they never become the form's
 extensions. A second list beside these would have to move whenever the converter pin adds a reader.
 The form's copy names no formats of its own for the same reason: it says "any format logbook import
@@ -6938,10 +6944,11 @@ page refuses, in another form.
 
 ## Import has its own page, and export lives in Settings → Data
 
-`/import` is the one door for every file the app reads. Settings → Data offers all four export
-formats alongside the uploaded files' usage; the old `/export` and `/data` addresses are gone rather
-than redirected. The import picker filters nothing: the API decides by the bytes, and a file it
-cannot read is a row, not a refusal.
+`/import` is the one door for every file the app reads, `/import/[id]` one import by its address,
+and `/import/[id]/log` its log. Settings → Data offers all four export formats alongside the
+uploaded files' usage; the old `/export` and `/data` addresses are gone rather than redirected. The
+import picker filters nothing: the API decides by the bytes, and a file it cannot read is a line
+above the review, not a refusal.
 
 ## The map renderer ships in the web image, as a command of its own
 

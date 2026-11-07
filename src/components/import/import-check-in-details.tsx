@@ -30,7 +30,7 @@ import {
   type CheckinDetailsFormValues,
 } from "@/lib/validations/checkin-details";
 
-/** What the apply sends beside the files and the token; each part omitted when empty. */
+/** What the apply sends; each part omitted when empty. */
 export interface ImportCheckInChoices {
   details?: ImportCheckInSubmission;
   portrait?: ImportPortraitChoice;
@@ -52,11 +52,11 @@ export interface ImportCheckIn {
 }
 
 /**
- * The editable half of an import preview: one form over the check-in details the
+ * The editable half of an import's review: one form over the check-in details the
  * document carries, seeded with the API's proposal, and the archive's portrait,
  * taken unless kept.
  *
- * Seeded once, so the host mounts it per preview (keyed on the token). The resolver
+ * Seeded once, so the host mounts it per import (keyed on its uuid). The resolver
  * covers only the details not kept, so a kept detail's proposal cannot block the apply.
  */
 export function useImportCheckIn(

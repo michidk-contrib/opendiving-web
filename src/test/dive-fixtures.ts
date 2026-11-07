@@ -1,5 +1,5 @@
 import type { ConditionsLookup, Dive, DiveConditions } from "@/lib/api/dives";
-import type { ImportDiveReport } from "@/lib/api/logbook-import";
+import type { LogbookImportDive } from "@/lib/api/logbook-import";
 
 // A hand-logged dive with every required member and nothing else, so a test
 // states only the fields it is about. Spelled out rather than cast: a member
@@ -77,23 +77,24 @@ export function conditionsLookup(
   };
 }
 
-// One created dive in an import plan or result, as the review table lists it.
-export function importDiveReport(
-  overrides: Partial<ImportDiveReport> = {},
-): ImportDiveReport {
+// One new dive in an import, as the review lists it.
+export function importDiveRow(
+  overrides: Partial<LogbookImportDive> = {},
+): LogbookImportDive {
   return {
     uuid: "11111111-1111-4111-8111-111111111111",
-    outcome: "created",
-    files_added: 0,
-    recordings_added: 0,
-    reason: null,
+    outcome: "new",
+    dive: dive({
+      uuid: "11111111-1111-4111-8111-111111111111",
+      start_time: "2026-09-07T11:04:58+03:00",
+      submerged_time: 4063,
+      max_depth: 21.8,
+    }),
+    changes: [],
     start_time: "2026-09-07T11:04:58+03:00",
-    submerged_time: 4063,
-    max_depth: 21.8,
     device: null,
     members: [0],
-    notes: [],
-    notes_truncated: 0,
+    reason: null,
     ...overrides,
   };
 }
