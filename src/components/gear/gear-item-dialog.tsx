@@ -1,9 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { useDialogApiError } from "@/hooks/useDialogApiError";
 import { NativeSelect } from "@/components/ui/native-select";
 import { FormApiError } from "@/components/ui/form-api-error";
-import { useForm, useWatch, type Control } from "react-hook-form";
+import { useForm, useFormContext, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { gearItemSchema, GearItemInput } from "@/lib/validations/gear";
 import {
@@ -39,7 +40,11 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { DialogSubmitButton } from "@/components/ui/dialog-submit-button";
 import { useEffectOnChange } from "@/hooks/useEffectOnChange";
-import { VolumeCombobox } from "@/components/dives/volume-combobox";
+import {
+  VolumeCombobox,
+  type PresetVessel,
+  type VolumeOption,
+} from "@/components/dives/volume-combobox";
 import { UnitNumberInput } from "@/components/unit-number-input";
 import { useUnits } from "@/hooks/useUnits";
 import { unitLabel } from "@/lib/units";
@@ -275,7 +280,7 @@ export function GearItemDialog({
 
             {/* The dialog's one type-conditional block: a cylinder's facts are
                 recorded once here and copied onto the tanks that link it. */}
-            {isCylinder && <CylinderFactFields control={form.control} />}
+            {isCylinder && <CylinderFactFields />}
 
             <FormField
               control={form.control}
@@ -346,8 +351,34 @@ export function GearItemDialog({
 
 // A cylinder's three facts. Its own component so only a dialog showing them reads the
 // diver's units, which the pressure box converts.
-function CylinderFactFields({ control }: { control: Control<GearItemInput> }) {
+function CylinderFactFields() {
   const units = useUnits();
+  const { control, getValues, setValue } = useFormContext<GearItemInput>();
+  // What the last preset pick wrote, which the next pick replaces - a diver
+  // correcting AL80 to HP100 means steel. Anything else a field holds, typed or
+  // stored on the item, outranks a name, so a pick fills only what is blank.
+  const presetFilled = useRef<Partial<PresetVessel>>({});
+  const fillFromPreset = ({ vessel }: VolumeOption) => {
+    const filled = presetFilled.current;
+    const next: Partial<PresetVessel> = {};
+    const pressure = getValues("working_pressure");
+    if (pressure == null || pressure === filled.working_pressure) {
+      const value = vessel?.working_pressure ?? null;
+      if (value !== pressure) {
+        setValue("working_pressure", value, { shouldDirty: true });
+      }
+      if (vessel) next.working_pressure = vessel.working_pressure;
+    }
+    const material = getValues("material");
+    if (!material || material === filled.material) {
+      const value = vessel?.material ?? "";
+      if (value !== material) {
+        setValue("material", value, { shouldDirty: true });
+      }
+      if (vessel) next.material = vessel.material;
+    }
+    presetFilled.current = next;
+  };
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -362,6 +393,7 @@ function CylinderFactFields({ control }: { control: Control<GearItemInput> }) {
                   <VolumeCombobox
                     value={field.value}
                     onChange={field.onChange}
+                    onPick={fillFromPreset}
                     placeholder="e.g. 11.1"
                   />
                 }
