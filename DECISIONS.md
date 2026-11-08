@@ -2948,10 +2948,10 @@ Placeholder heights come from `getBoundingClientRect()` on the real page with th
 patched `XMLHttpRequest.prototype.send`, comparing loading and loaded geometry of the same element;
 a screenshot does not show a `h-5` bar against a 24px line box or a legend nobody accounted for.
 
-`ListRowsSkeleton`'s bars are `h-5`/`h-4` against the real row's `text-base` over `text-sm`. Dive,
-trip and site cards load into `BackdropCardSkeleton`, one box at the card's measured 238px,
-`RECENT_DIVES_COUNT` or `RECENT_TRIPS_COUNT` of them on the Home page and a page of them on
-`/dives`, `/trips` and `/sites`.
+`ListRowsSkeleton`'s bars are `h-5`/`h-4` against the real row's `text-base` over `text-sm`. Dive
+and trip cards load into `BackdropCardSkeleton`, one box at the card's measured 238px,
+`RECENT_DIVES_COUNT` or `RECENT_TRIPS_COUNT` of them on the Home page and a page of them on `/dives`
+and `/trips`.
 
 ## The project instructions live in AGENTS.md, and CLAUDE.md is an import
 
@@ -3849,10 +3849,10 @@ conditional one (v13 allows one at a time); re-arming after the modal settles is
 `AuthForm` draws the single "Or" divider above the optional methods, gated on
 `googleClientId || passkey.supported`, because neither `GoogleAuthButton` nor the passkey button can
 know whether the other exists; the block disappears when an instance has neither. `next.config.js`'s
-`Permissions-Policy` names camera, microphone and geolocation and must not name
-`publickey-credentials-get`/`-create`, which stay at their default `self`: naming features there is
-opt-in, so a directive that omits these two kills passkey sign-in with a browser error pointing
-nowhere near the header.
+`Permissions-Policy` names camera, microphone and geolocation (`self`, for the site finder's _Use my
+location_) and must not name `publickey-credentials-get`/`-create`, which stay at their default
+`self`: naming features there is opt-in, so a directive that omits these two kills passkey sign-in
+with a browser error pointing nowhere near the header.
 
 ## Signing is enforced locally, because GitHub cannot do it yet
 
@@ -7119,3 +7119,15 @@ hosted instance within minutes, untested as merged. `semantic-title` and `depend
 pull request to read on a merge group and skip; a skipped job reports success. The release
 coordinator in opendiving/opendiving merges bump pull requests with `gh pr merge`, which a required
 queue enqueues instead of merging, so the queue goes on only once that flow can merge past it.
+
+## The site finder's camera is the one anchor, and a pan asks nothing
+
+`/sites` is `SiteFinder`: a map beside one list from `GET /dive-sites/search`, rendered in the order
+it comes. Every request carries the map's centre, rounded to two decimals in `searchParams`, and,
+after _Search this area_, the view rounded outward; nothing is rounded anywhere else, so no caller
+can send a finer position. The server never learns what moved the camera. A pan records the centre
+and offers _Search this area_; a typed term or a picked place asks. The camera waits on the world
+until its opening rule's reads have settled, and a finder still resting there sends no camera.
+
+_Rejected:_ re-running the list as the map moves, a request per pan that the geocoder shares; and
+the cards' map backdrops on the rows, a second map of what the map beside them already shows.

@@ -59,13 +59,15 @@ one.
   across recorded gas switches on multi-tank dives, with a consumption trend chart on the Home page.
 - **Trips** — group dives into a liveaboard or a holiday week, a part at a time: each part carries
   its own place and its own dates, and the trip spans them all.
-- **Dive sites** — your personal site list: the other names a site goes by, the depths it is dived
-  at, its water, its altitude and how you get in, and your own tags. Search OpenDiving Commons, a
-  shared pool of named sites, and use one as it stands: every diver's dives name the same record,
-  with your notes and tags on top and yours alone. Where the Commons is edited, propose a site of
-  yours or a change to a record, for a reviewer to accept. A site's page sums up your dives there —
-  how many, the last and the deepest, the species you saw and your average rating — beside every
-  dive you've logged at it, and a dive logged there starts from its water, altitude and entry. Sort
+- **Dive sites** — one map and one search over your own sites and OpenDiving Commons, a shared pool
+  of named sites: the sites nearest the map's centre until you type, then the sites and the places
+  that match, each place with how many sites are near it. Your own sites record the other names a
+  site goes by, the depths it is dived at, its water, its altitude and how you get in, and your own
+  tags. Use a Commons site as it stands: every diver's dives name the same record, with your notes
+  and tags on top and yours alone. Where the Commons is edited, propose a site of yours or a change
+  to a record, for a reviewer to accept. A site's page sums up your dives there — how many, the last
+  and the deepest, the species you saw and your average rating — beside every dive you've logged at
+  it, and a dive logged there starts from its water, altitude and entry. Under _Your sites_, sort
   the list by name, by dives or by the last dive, and filter it by a tag.
 - **Gear tracking** — your equipment with per-item dive counts and dive time, groupable into gear
   sets you can attach to a dive in one click; a cylinder records its volume, working pressure and
@@ -223,8 +225,8 @@ proxy in front, or drops it for a plain-HTTP LAN address, and `WEB_NOINDEX=true`
 that is reachable but private out of search engines.
 
 The same image carries a second program, the map renderer, which draws the map tiles the API stores
-once for every account and the dive, trip and dive site cards and page heads are composed from. It
-is started with its own command and reached by the API alone:
+once for every account and the dive and trip cards and the dive, trip and dive site page heads are
+composed from. It is started with its own command and reached by the API alone:
 
 ```bash
 docker run -e SITE_URL=https://dives.example.com opendiving-web node map-renderer/index.mjs
