@@ -25,9 +25,35 @@ export const SPECIES_CARD_GRID =
   "grid grid-cols-[repeat(auto-fill,minmax(min(20rem,100%),1fr))] gap-3 max-sm:gap-2.5";
 
 // How far below the centre of the band above a card's details its photo's
-// centre sits, and how far the photo's foot fades into the blur under it.
+// centre sits, and how far the photo's foot fades into what is under it.
 const PHOTO_BELOW_BAND_CENTRE = 8;
 const PHOTO_FOOT_FADE = 48;
+
+// How far above the backdrop's middle the centre of the band `coveredTop` and
+// `coveredBottom` leave sits, less the photo's offset below it.
+const bandRaise = (coveredTop: number, coveredBottom: number) =>
+  (coveredBottom - coveredTop) / 2 - PHOTO_BELOW_BAND_CENTRE;
+
+// The sharp photo's place, centred `raise` pixels above the backdrop's middle
+// and at least as tall as reaches both the backdrop's top and, with its fade,
+// under the details: the larger of `-2 * raise` and `2 * (fade - coveredBottom
+// + raise)` more than the backdrop.
+function photoPlacement(raise: number, coveredBottom: number) {
+  const reach = Math.max(
+    -2 * raise,
+    2 * (PHOTO_FOOT_FADE - coveredBottom + raise),
+  );
+  return {
+    top: `calc(50% - ${raise}px)`,
+    minHeight: `calc(100% + ${reach}px)`,
+    maskImage: `linear-gradient(to bottom, #000 calc(100% - ${PHOTO_FOOT_FADE}px), transparent)`,
+  };
+}
+
+// The sharp photo, as wide as what holds it and as tall as its shape makes it
+// - or as `photoPlacement` asks, cropping its sides.
+const PLACED_PHOTO =
+  "absolute inset-x-0 w-full max-w-none -translate-y-1/2 object-cover";
 
 // A species' photo behind its names, on its card and across its page's hero -
 // the map's water and a fish where it has none, as a dive with no place is
@@ -39,25 +65,36 @@ const PHOTO_FOOT_FADE = 48;
 // makes it, cropped where it overruns; what it leaves of the card's foot is a
 // blurred copy of itself. A photo too wide to reach under the details with its
 // fade is drawn taller, cropping its sides, so the fade never shows above the
-// glass: centred where it is, a photo `2 * (fade - offset)` taller than the
-// band ends its fade at the band's foot. That height also keeps its top above
-// the card's.
+// glass.
 //
 // On a hero it is faded as a map is, into the colour the names glow in, so
 // they read over a photo as over a map. It is as wide as a hero's map at most
 // and narrows with the window rather than cropping, its sides dissolving into
 // the page by as much as a map's do at that width - a quarter of its width at
 // its widest, and nothing once a map's fades would lie past the window's
-// edges.
+// edges. It is raised towards the band between the top row and the details as
+// far as the details' text runs across it: where the text spans the photo, as
+// on a phone, it sits as on a card, and where the text leaves most of the
+// photo's foot open, as on a wide window, it stays nearer the hero's middle.
+// It is drawn taller only to reach the hero's top and to end its fade under
+// the details. Its top is never faded and nothing is drawn under it: the hero
+// has no glass to show through, and its own wash takes the photo's foot into
+// the page.
 export function SpeciesBackdrop({
   photo,
   coveredBottom,
-  coveredTop,
+  coveredTop = 0,
+  detailsRight = 0,
+  width = 0,
   hero = false,
 }: {
   photo: string | null;
   coveredBottom: number;
   coveredTop?: number;
+  // On a hero: how far from its left edge the details' text reaches, and its
+  // width.
+  detailsRight?: number;
+  width?: number;
   hero?: boolean;
 }) {
   if (!photo) {
@@ -71,7 +108,6 @@ export function SpeciesBackdrop({
     );
   }
   if (!hero) {
-    const band = `(100% - ${coveredBottom}px)`;
     return (
       <div
         aria-hidden
@@ -89,16 +125,19 @@ export function SpeciesBackdrop({
         <img
           src={photo}
           alt=""
-          className="absolute inset-x-0 w-full -translate-y-1/2 object-cover"
-          style={{
-            top: `calc(${band} / 2 + ${PHOTO_BELOW_BAND_CENTRE}px)`,
-            minHeight: `calc(${band} + ${2 * (PHOTO_FOOT_FADE - PHOTO_BELOW_BAND_CENTRE)}px)`,
-            maskImage: `linear-gradient(to bottom, #000 calc(100% - ${PHOTO_FOOT_FADE}px), transparent)`,
-          }}
+          className={PLACED_PHOTO}
+          style={photoPlacement(bandRaise(0, coveredBottom), coveredBottom)}
         />
       </div>
     );
   }
+  // The share of the photo's width the details' text runs across.
+  const canvasWidth = Math.min(HERO_CANVAS_WIDTH, width);
+  const covered = canvasWidth
+    ? (detailsRight - (width - canvasWidth) / 2) / canvasWidth
+    : 0;
+  const heroRaise =
+    bandRaise(coveredTop, coveredBottom) * Math.min(1, Math.max(0, covered));
   const fade = (direction: string, stops: string) => (
     <div
       className="absolute inset-0"
@@ -117,7 +156,12 @@ export function SpeciesBackdrop({
         style={{ width: `min(${HERO_CANVAS_WIDTH}px, 100%)` }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- see SpeciesThumbnail */}
-        <img src={photo} alt="" className="size-full object-cover" />
+        <img
+          src={photo}
+          alt=""
+          className={PLACED_PHOTO}
+          style={photoPlacement(heroRaise, coveredBottom)}
+        />
         {fade(
           "to right",
           `var(--backdrop-fade), transparent max(0px, 50% - ${HERO_CANVAS_WIDTH / 2 - SIDE_FADE_WIDTH}px), transparent min(100%, 50% + ${HERO_CANVAS_WIDTH / 2 - SIDE_FADE_WIDTH}px), var(--backdrop-fade)`,

@@ -124,7 +124,10 @@ describe("SpeciesBackdrop", () => {
       new Function(
         `return ${expression
           .replace(/^calc/, "")
-          .replace(/100%/g, String(cardHeight))
+          .replace(
+            /(\d+)%/g,
+            (_, share) => `${(Number(share) / 100) * cardHeight}`,
+          )
           .replace(/px/g, "")}`,
       )(),
     );
@@ -164,13 +167,111 @@ describe("SpeciesBackdrop", () => {
     expect(blurred).toHaveClass("blur-[28px]", "object-cover");
   });
 
-  it("draws a hero's photo once, across it, rather than framed as a card's", () => {
+  // A hero with its top row's bottom 46px down and its details' text reaching
+  // `right` across a window `width` wide: a phone's, the text running across
+  // its photo; a laptop's, whose 1152px photo starts 144px in and the text
+  // ends 39% of the way across it; and one whose text leaves its photo bare.
+  const HEROES = [
+    {
+      name: "phone",
+      height: 288,
+      top: 46,
+      details: 142,
+      width: 390,
+      right: 390,
+    },
+    {
+      name: "laptop",
+      height: 352,
+      top: 46,
+      details: 136,
+      width: 1440,
+      right: 594.5,
+    },
+    {
+      name: "bare",
+      height: 352,
+      top: 46,
+      details: 136,
+      width: 1440,
+      right: 100,
+    },
+  ];
+  const heroPhoto = ({
+    top,
+    details,
+    width,
+    right,
+  }: (typeof HEROES)[number]) => {
+    const { container } = render(
+      <SpeciesBackdrop
+        hero
+        photo={PHOTO}
+        coveredTop={top}
+        coveredBottom={details}
+        detailsRight={right}
+        width={width}
+      />,
+    );
+    return container.querySelector("img")!;
+  };
+
+  it("draws a hero's photo once, with nothing blurred under it", () => {
     const { container } = render(
       <SpeciesBackdrop hero photo={PHOTO} coveredBottom={110} />,
     );
 
     const images = container.querySelectorAll("img");
     expect(images).toHaveLength(1);
-    expect(images[0]).toHaveClass("size-full", "object-cover");
+    expect(images[0].className).not.toContain("blur");
   });
+
+  it("centres a hero's photo as a card's where the details' text spans it", () => {
+    const hero = HEROES[0];
+    const photo = heroPhoto(hero);
+
+    expect(photo).toHaveClass("-translate-y-1/2", "w-full");
+    expect(px(photo.style.top, hero.height)).toBe(
+      (hero.top + hero.height - hero.details) / 2 + 8,
+    );
+  });
+
+  it("raises a hero's photo only as far as the details' text runs across it", () => {
+    const hero = HEROES[1];
+    const middle = hero.height / 2;
+    const bandCentre = (hero.top + hero.height - hero.details) / 2 + 8;
+    const share = (hero.right - 144) / 1152;
+
+    expect(px(heroPhoto(hero).style.top, hero.height)).toBeCloseTo(
+      middle - (middle - bandCentre) * share,
+    );
+  });
+
+  it("leaves a hero's photo on its middle where the text covers none of it", () => {
+    const hero = HEROES[2];
+
+    expect(px(heroPhoto(hero).style.top, hero.height)).toBe(hero.height / 2);
+  });
+
+  it.each(HEROES)(
+    "draws a $name hero's photo tall enough to meet its top and to fade under its details",
+    (hero) => {
+      const { height, details } = hero;
+      const photo = heroPhoto(hero);
+      const centre = px(photo.style.top, height);
+      const shortest = px(photo.style.minHeight, height);
+
+      // Cropped at the sides rather than drawn shorter.
+      expect(photo).toHaveClass("object-cover");
+      const pastTop = shortest / 2 - centre;
+      const pastDetailsTop = centre + shortest / 2 - 48 - (height - details);
+
+      // No gap at the hero's top...
+      expect(pastTop).toBeGreaterThanOrEqual(0);
+      // ...the foot's fade starts no higher than the details' top...
+      expect(pastDetailsTop).toBeGreaterThanOrEqual(0);
+      // ...and it is only as tall as one of the two needs: no crop for nothing.
+      expect(Math.min(pastTop, pastDetailsTop)).toBeCloseTo(0);
+    },
+  );
 });
