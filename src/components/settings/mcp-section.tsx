@@ -26,12 +26,14 @@ interface McpSectionProps {
   serverUrl: string;
 }
 
-// The settings menu offers this page only where the API serves MCP; a direct visit
-// anywhere else finds no such page rather than a request to the operator.
+// The settings menu leaves this page out where the config says the API has no MCP;
+// a direct visit there finds no such page rather than a request to the operator.
+// While the config is unknown - it failed to load - the connections endpoint
+// answers instead, and its absence shows as "MCP unavailable".
 export function McpSection({ serverUrl }: McpSectionProps) {
   const { config, isLoading } = useInstanceConfig();
   if (isLoading) return <SectionSpinner />;
-  if (config?.mcp_enabled !== true)
+  if (config !== null && config.mcp_enabled !== true)
     return (
       <NotFoundState
         message="This instance does not offer MCP."

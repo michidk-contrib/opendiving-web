@@ -56,9 +56,10 @@ export interface InstanceConfig {
    */
   commons_primary: boolean;
   /**
-   * Whether this instance's API serves MCP. The settings menu shows its MCP entry,
-   * and `/settings/mcp` its page, only on `true`; an API too old to carry the
-   * field has no MCP to offer.
+   * Whether this instance's API serves MCP. Once `/config` has answered, the
+   * settings menu shows its MCP entry, and `/settings/mcp` its page, only on
+   * `true`; an API too old to carry the field has no MCP to offer. While the config
+   * is unknown the entry stays and the page asks the connections endpoint.
    */
   mcp_enabled: boolean;
 }
