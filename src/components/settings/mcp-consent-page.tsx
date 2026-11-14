@@ -6,6 +6,7 @@ import { Plug, ShieldCheck } from "lucide-react";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { mcpAPI, type McpConsent } from "@/lib/api/mcp";
 import { getApiErrorMessage } from "@/lib/api/error";
+import { readPermissions } from "@/lib/permissions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,12 +68,7 @@ function ConsentForm({ request, email }: ConsentFormProps) {
           setState({
             status: "ready",
             consent,
-            // Check-in reads include the diver's insurance and emergency contact,
-            // so they are never granted without being picked.
-            selected: consent.scopes.filter(
-              (scope) =>
-                scope.endsWith(":read") && !scope.startsWith("checkin:"),
-            ),
+            selected: readPermissions(consent.scopes),
           });
       })
       .catch((cause: unknown) => {

@@ -254,6 +254,22 @@ it("marks a self-registered name as unverified and shows where approval returns"
   expect(screen.getByText("client.example")).toBeInTheDocument();
 });
 
+it("leaves check-in out of Read only", async () => {
+  api.getConsent.mockResolvedValue({
+    name: "Dive assistant",
+    client_id: "client-123",
+    redirect_uri: "https://client.example/callback",
+    scopes: ["dives:read", "dives:write", "checkin:read"],
+  });
+  render(<McpConsentPage />);
+  fireEvent.click(await screen.findByRole("button", { name: "Select all" }));
+  fireEvent.click(screen.getByRole("button", { name: "Read only" }));
+  expect(screen.getByRole("checkbox", { name: "Read dives" })).toBeChecked();
+  expect(
+    screen.getByRole("checkbox", { name: "Read check-in" }),
+  ).not.toBeChecked();
+});
+
 it("names the domain that published a metadata-document client's name", async () => {
   api.getConsent.mockResolvedValue({
     name: "Dive assistant",
