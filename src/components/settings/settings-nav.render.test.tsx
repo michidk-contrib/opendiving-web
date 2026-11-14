@@ -196,13 +196,30 @@ describe("SettingsNav", () => {
     expect(labels()).not.toContain("MCP");
   });
 
-  it("keeps Invitations while the mode is not known", () => {
-    // A failed or pending `/config` is not an answer, and the page behind the entry
-    // explains itself on an open instance.
+  it("keeps Invitations and MCP while the config is not known", () => {
+    // A failed or pending `/config` is not an answer, and the page behind each
+    // entry explains itself where the feature is missing.
     render(<SettingsNav />);
 
     expect(labels()).toContain("Invitations");
-    // MCP is off unless the API says otherwise, so an unknown config hides it.
+    expect(labels()).toContain("MCP");
+  });
+
+  it("leaves MCP out where the API does not report it", () => {
+    // An API too old to carry `mcp_enabled` has no MCP.
+    const { mcp_enabled: _omitted, ...older } = {
+      registration_mode: "invite",
+      project_operated: false,
+      join_links: false,
+      map_tiles: false,
+      dive_conditions: false,
+      commons_primary: false,
+      mcp_enabled: true,
+    } satisfies InstanceConfig;
+    instance.config = older as InstanceConfig;
+    render(<SettingsNav />);
+
     expect(labels()).not.toContain("MCP");
+    expect(labels()).toContain("Invitations");
   });
 });
