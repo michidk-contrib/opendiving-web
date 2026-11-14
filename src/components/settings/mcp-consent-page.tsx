@@ -20,11 +20,14 @@ import { SectionSpinner } from "@/components/ui/section-spinner";
 import { StatusMessage } from "@/components/ui/status-message";
 
 // A client ID that is an HTTPS URL names the client-ID metadata document its name
-// came from, so that document's host vouches for it. Any other name came from
-// unauthenticated dynamic registration and is whatever the registrant typed.
-function metadataHost(clientId: string): string | null {
+// came from, so whoever controls that document vouches for it. Its path is shown
+// with the host: on a shared host such as raw.githubusercontent.com anyone can
+// publish one, and the host alone would lend the client its credibility. Any other
+// name came from unauthenticated dynamic registration and is whatever the
+// registrant typed.
+function metadataDocument(clientId: string): URL | null {
   if (!clientId.startsWith("https://") || !URL.canParse(clientId)) return null;
-  return new URL(clientId).host;
+  return new URL(clientId);
 }
 
 type ConsentState =
@@ -103,7 +106,7 @@ function ConsentForm({ request, email }: ConsentFormProps) {
   if (state.status === "loading") return <SectionSpinner />;
   if (state.status === "failed")
     return <StatusMessage variant="error">{state.message}</StatusMessage>;
-  const publisher = metadataHost(state.consent.client_id);
+  const publisher = metadataDocument(state.consent.client_id);
 
   return (
     <Card className="overflow-hidden">
@@ -119,7 +122,10 @@ function ConsentForm({ request, email }: ConsentFormProps) {
             {publisher ? (
               <p className="break-words text-sm text-muted-foreground">
                 Name published by{" "}
-                <span className="font-medium text-foreground">{publisher}</span>
+                <span className="font-medium text-foreground">
+                  {publisher.host}
+                </span>
+                {publisher.pathname}
               </p>
             ) : (
               <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">

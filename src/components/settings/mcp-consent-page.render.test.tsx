@@ -270,6 +270,22 @@ it("leaves check-in out of Read only", async () => {
   ).not.toBeChecked();
 });
 
+it("shows the metadata document's path with its host", async () => {
+  // On a shared host anyone can publish a document, so the host alone vouches
+  // for nothing.
+  api.getConsent.mockResolvedValue({
+    name: "Dive assistant",
+    client_id:
+      "https://raw.githubusercontent.com/someone/tools/main/client.json",
+    redirect_uri: "https://callback.example/done",
+    scopes: ["dives:read"],
+  });
+  render(<McpConsentPage />);
+  expect(await screen.findByText(/^Name published by/)).toHaveTextContent(
+    "Name published by raw.githubusercontent.com/someone/tools/main/client.json",
+  );
+});
+
 it("names the domain that published a metadata-document client's name", async () => {
   api.getConsent.mockResolvedValue({
     name: "Dive assistant",
