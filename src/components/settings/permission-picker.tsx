@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { groupPermissions } from "@/lib/permissions";
+import { groupPermissions, readPermissions } from "@/lib/permissions";
 
 interface PermissionPickerProps {
   legend?: string;
@@ -34,9 +34,7 @@ export function PermissionPicker({
             type="button"
             size="sm"
             variant="ghost"
-            onClick={() =>
-              onChange(scopes.filter((scope) => scope.endsWith(":read")))
-            }
+            onClick={() => onChange(readPermissions(scopes))}
           >
             Read only
           </Button>
