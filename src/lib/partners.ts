@@ -15,7 +15,7 @@ export const PARTNER_APPS: readonly PartnerApp[] = [
   {
     name: "DiveCalc",
     href: "https://www.divecalc.app/",
-    description: "Scuba calculators and guides for gas planning and Nitrox",
+    description: "Tool for recreational and technical divers",
     logo: "/partners/divecalc.svg",
   },
   {
