@@ -286,6 +286,20 @@ it("shows the metadata document's path with its host", async () => {
   );
 });
 
+it("shows an internationalised host as punycode and keeps percent-encoding", async () => {
+  // A Unicode host could pass for a familiar one; the punycode form cannot.
+  api.getConsent.mockResolvedValue({
+    name: "Dive assistant",
+    client_id: "https://tauchbasis-münchen.example/clients/%7Ebot.json",
+    redirect_uri: "https://callback.example/done",
+    scopes: ["dives:read"],
+  });
+  render(<McpConsentPage />);
+  expect(await screen.findByText(/^Name published by/)).toHaveTextContent(
+    "Name published by xn--tauchbasis-mnchen-e3b.example/clients/%7Ebot.json",
+  );
+});
+
 it("names the domain that published a metadata-document client's name", async () => {
   api.getConsent.mockResolvedValue({
     name: "Dive assistant",
