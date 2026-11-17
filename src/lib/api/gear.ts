@@ -5,6 +5,7 @@ import type { MessageResponse, PaginatedResponse } from "./client";
 // Type-only, so it erases at compile time - `gear-service.ts` has no import back to
 // here, but keeping this one type-only means the pair can never become a real cycle.
 import type { GearServiceScheduleSummary } from "./gear-service";
+import type { CustomProperty } from "@/lib/custom-properties";
 
 /**
  * Broad category a gear item falls into. Mirrors the API's `GearType` enum -
@@ -128,6 +129,9 @@ export interface VesselFacts {
  * A single piece of diving equipment (regulator, BCD, drysuit, computer, ...).
  */
 export interface GearItem extends VesselFacts {
+  // The diver's own key-value pairs, in their order (`lib/custom-properties.ts`).
+  // Optional because a response cached before they existed carries none.
+  custom_properties?: CustomProperty[];
   uuid: string;
   name: string;
   brand?: string | null;
@@ -173,6 +177,8 @@ export interface GearItemSummary {
 export interface GearItemInfo extends GearItemSummary, VesselFacts {}
 
 export interface GearItemCreate {
+  // Replaces the list whole; omitted, a write leaves it.
+  custom_properties?: CustomProperty[];
   name: string;
   brand?: string;
   type?: GearType;
@@ -184,6 +190,8 @@ export interface GearItemCreate {
 }
 
 export interface GearItemUpdate {
+  // Replaces the list whole; omitted, a write leaves it.
+  custom_properties?: CustomProperty[];
   name?: string;
   brand?: string | null;
   type?: GearType | null;
@@ -202,6 +210,9 @@ export interface GearItemUpdate {
  * the set, so editing or deleting a set never rewrites logged dives.
  */
 export interface GearSet {
+  // The diver's own key-value pairs, in their order (`lib/custom-properties.ts`).
+  // Optional because a response cached before they existed carries none.
+  custom_properties?: CustomProperty[];
   uuid: string;
   name: string;
   // Ballast normally carried with this configuration, in kilograms. Prefills
@@ -214,12 +225,16 @@ export interface GearSet {
 }
 
 export interface GearSetCreate {
+  // Replaces the list whole; omitted, a write leaves it.
+  custom_properties?: CustomProperty[];
   name: string;
   weight?: number | null;
   gear_item_uuids: string[];
 }
 
 export interface GearSetUpdate {
+  // Replaces the list whole; omitted, a write leaves it.
+  custom_properties?: CustomProperty[];
   name?: string;
   weight?: number | null;
   gear_item_uuids?: string[];
