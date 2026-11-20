@@ -516,21 +516,28 @@ function PageInfo({ children }: { children: ReactNode }) {
 }
 
 // The heading of a page reached from the navigation rather than from a record:
-// a plain hero with nothing to go back to, so no top row - the page's actions
-// end the title's line instead, as far from the header above and the body below
-// as from the window's edge - the column's gutter, which the body's top padding
-// falls short of from `lg` - and its description is behind an icon after the
-// title. Controls, so paper goes without them.
+// a plain hero whose page's actions end the title's line, as far from the header
+// above and the body below as from the window's edge - the column's gutter,
+// which the body's top padding falls short of from `lg` - and whose description
+// is behind an icon after the title. Controls, so paper goes without them. A
+// page under a section's landing has that landing to go back to, and draws the
+// way back on a plain hero's top row; one reached from the navigation has none.
 export function IndexHero({
   icon,
   title,
   description,
   subtitle,
   actions,
+  backHref,
+  backLabel,
+  onBack,
   headingRef,
   className,
 }: Pick<MapHeroProps, "title" | "subtitle" | "actions"> &
-  Partial<Pick<MapHeroProps, "icon">> & {
+  Partial<Pick<MapHeroProps, "icon" | "backHref" | "backLabel">> & {
+    // The way back from a view a page swaps in rather than a route of its own,
+    // in place of `backHref`.
+    onBack?: () => void;
     // What the page is for, behind the icon. `subtitle` is for what a reader
     // must see without asking, under the title.
     description?: ReactNode;
@@ -538,9 +545,26 @@ export function IndexHero({
     headingRef?: Ref<HTMLHeadingElement>;
     className?: string;
   }) {
+  const back = !backLabel ? null : onBack ? (
+    <Button variant="ghost" size="sm" className={HERO_CONTROL} onClick={onBack}>
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      {backLabel}
+    </Button>
+  ) : backHref ? (
+    <HeroBackLink backHref={backHref} backLabel={backLabel} />
+  ) : null;
   return (
-    <div className={cn(COLUMN, "pt-2.5 sm:pt-6 lg:pt-8 lg:pb-2", className)}>
+    <div
+      className={cn(
+        COLUMN,
+        !back && "pt-2.5 sm:pt-6 lg:pt-8",
+        "lg:pb-2",
+        className,
+      )}
+    >
+      {back && <div className={cn(PLAIN_TOP_ROW, "print:hidden")}>{back}</div>}
       <HeroDetails
+        className={back ? PLAIN_DETAILS : undefined}
         icon={icon}
         title={title}
         subtitle={subtitle}
