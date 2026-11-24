@@ -12,6 +12,10 @@ import { peopleAPI, type Person } from "@/lib/api/people";
 import { cn } from "@/lib/utils";
 import { RecentDivesCard } from "@/components/dives/recent-dives-card";
 import { PersonDialog } from "@/components/people/person-dialog";
+import { PersonPicture } from "@/components/people/person-picture";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
+import { getApiErrorMessage } from "@/lib/api/error";
 import { Button } from "@/components/ui/button";
 import {
   DeleteMenuItem,
@@ -28,7 +32,7 @@ import {
 } from "@/components/ui/map-hero";
 import { NotFoundState } from "@/components/ui/not-found-state";
 import { PageSpinner } from "@/components/ui/page-spinner";
-import { Edit, FileText, Mail, Phone, User } from "lucide-react";
+import { Edit, FileText, Mail, Phone, Unlink, User } from "lucide-react";
 
 // An icon set in the subtitle's line, at its text's size, before the value it
 // marks; the link never breaks between them. A step lower than a site's facts
@@ -44,6 +48,9 @@ export function PersonDetailPageContent() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuthGuard();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDisconnectOpen, setIsDisconnectOpen] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const { toast } = useToast();
   const back = useReturnTo({ href: "/people", label: "Back to people" });
 
   const {
@@ -67,6 +74,28 @@ export function PersonDetailPageContent() {
     onDeleted: () => router.push(back.href),
   });
   const isDeleting = del.deletingId !== null;
+
+  const disconnect = async () => {
+    if (!person) return;
+    setIsDisconnecting(true);
+    try {
+      setPerson(await peopleAPI.disconnectPerson(person.uuid));
+      setIsDisconnectOpen(false);
+      toast({ title: `${person.name} is disconnected` });
+    } catch (error) {
+      console.error("Failed to disconnect this person:", error);
+      toast({
+        title: "Error",
+        description: getApiErrorMessage(
+          error,
+          "Failed to disconnect this person. Please try again.",
+        ),
+        variant: "destructive",
+      });
+    } finally {
+      setIsDisconnecting(false);
+    }
+  };
 
   if (isAuthLoading) {
     return <PageSpinner variant="inset" />;
@@ -100,8 +129,8 @@ export function PersonDetailPageContent() {
     );
   }
 
-  // The linked account's current username and nothing else of theirs: the
-  // link shows the diver that much, and the account is told nothing.
+  // The connected account's current username, and its picture in the icon's
+  // place; the name is the diver's own for them.
   const subtitle = [
     person.username && `@${person.username}`,
     person.email && (
@@ -127,6 +156,11 @@ export function PersonDetailPageContent() {
         backHref={back.href}
         backLabel={back.label}
         icon={User}
+        picture={
+          person.avatar_sha256 ? (
+            <PersonPicture person={person} className="size-full" />
+          ) : undefined
+        }
         title={person.name}
         subtitle={subtitle}
         figures={[]}
@@ -143,6 +177,12 @@ export function PersonDetailPageContent() {
               Edit
             </Button>
             <ItemActionsMenu variant="ghost" size="sm" className={HERO_CONTROL}>
+              {person.username && (
+                <DropdownMenuItem onClick={() => setIsDisconnectOpen(true)}>
+                  <Unlink className="h-4 w-4 mr-2" />
+                  Disconnect
+                </DropdownMenuItem>
+              )}
               <DeleteMenuItem
                 onSelect={() => del.requestDelete(person.uuid)}
                 disabled={isDeleting}
@@ -157,6 +197,16 @@ export function PersonDetailPageContent() {
         onOpenChange={setIsEditOpen}
         person={person}
         onSaved={setPerson}
+      />
+
+      <ConfirmDialog
+        open={isDisconnectOpen}
+        onOpenChange={setIsDisconnectOpen}
+        title="Disconnect"
+        description={`${person.name} stays in your people, with the dives that name them, but without their account's picture and username. You leave the Added you of that account, which is not told.`}
+        confirmText="Disconnect"
+        isLoading={isDisconnecting}
+        onConfirm={disconnect}
       />
 
       <ConfirmDialog

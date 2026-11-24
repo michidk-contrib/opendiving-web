@@ -90,9 +90,11 @@ const IMPORT_CONTAINER_LABELS: Record<"divejson" | "archive" | "zip", string> =
 /**
  * The `parser_key` of a file the API keeps but no reader of this build reads:
  * restored from an archive whose document named no format the API reads. The
- * iOS app's dive-computer downloads from before it tagged them with
- * `DIVE_COMPUTER_ORIGINAL_PARSER_KEY` are the files that arrive this way, which
- * is why the label names them; any other file under the key wears the same one.
+ * label names a dive-computer download because that is what arrives this way
+ * in practice: an iOS app download from before the app tagged them with
+ * `DIVE_COMPUTER_ORIGINAL_PARSER_KEY`, restored from an archive exported before
+ * the API labelled those it already held. Any other file under the key wears
+ * the same label.
  */
 export const UNREAD_FILE_PARSER_KEY = "divejson_import";
 
@@ -223,10 +225,12 @@ export type ImportNoteCode =
   // The archive's portrait was taken, and the account's had changed since the
   // review, so the account's stayed. Information: nothing was lost.
   | "portrait_kept"
-  // A person is linked, by the review's word or the apply's deed, to the account
-  // on this instance its entry names; the sentence names that account's current
-  // username. Information: the link is what the file asked for, under the same
-  // per-user limit a typed username counts against.
+  // A person is connected, by the review's word or the apply's deed, to the
+  // account on this instance its entry names; the sentence names that account's
+  // current username. Information: the tie is what the file asked for, under a
+  // per-user limit.
+  | "account_connected"
+  // The same note as a review stored before the API renamed it still carries.
   | "account_linked"
   // The tags the import adds to the diver's list, named in one note. Tags are
   // members of a dive rather than a collection, so no row of counts has them.

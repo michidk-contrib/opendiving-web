@@ -75,7 +75,7 @@ one.
   material once, and a dive's tank links it. Plus **service schedules** (annual service, visual
   inspection, hydro test…) by months, dives or hours of diving, with due-soon reminders under the
   notifications bell and by email.
-- **Marine life** — record what you saw against a real species catalog, resolved live against the
+- **Aquatic life** — record what you saw against a real species catalog, resolved live against the
   World Register of Marine Species and Wikidata so a name you half-remember still finds the animal,
   with how many you counted or a band — few, many, abundant — and a note on each. Your **life list**
   collects every species you have ever logged, with a photograph fetched from Wikimedia Commons and
@@ -104,10 +104,10 @@ one.
   from it, and a trip names its dive centers from its dives.
 - **People** — your buddies, guides, instructors, fellow students and whoever came along, each kept
   once and picked for a dive, a trip or a course with the role they had that time; a course's and a
-  card's instructor is one of them. Type a name that is new and it becomes a person. Link one to
-  their account on the same instance by its username and you see that account's current `@username`
-  beside the name, nothing else of theirs, and they are not told. UDDF and Subsurface buddies arrive
-  as people when you import.
+  card's instructor is one of them. Type a name that is new and it becomes a person. Show a buddy
+  your connect link — a QR code on People — and they add you to their people, connected: each of you
+  sees the other's picture and `@username`, and you see who added you under _Added you_, to add
+  back, hide or disconnect. UDDF and Subsurface buddies arrive as people when you import.
 - **Full export** — one click to take _everything_ out in open formats: a **DiveJSON** document
   holding the whole logbook, a **UDDF** one other programs import, a **CSV** for a spreadsheet, or a
   complete **archive** carrying all three alongside every dive-computer file you uploaded, every
@@ -129,11 +129,12 @@ one.
   new and what changes, each opening the dive or what it was and what it becomes, with any file that
   could not be read listed first; nothing is written until you import. Each import stays as history,
   with a log of what its files did not record, what the import worked out, and which of the dive's
-  values it left out. Records you already have are matched rather than duplicated, and a dive you
-  deleted stays deleted. The archive additionally restores the dive-computer files and c-card scans,
-  which the bare document names by digest but does not carry. The check-in details a logbook
-  carries, and an archive's portrait, are shown beside yours in the review, and only what you choose
-  there is saved.
+  values it left out. Records you already have are matched rather than duplicated, and a file of a
+  dive you merged into another is that dive's, adding no dive; a dive, certification or service
+  record you deleted and import again is added as a new one. The archive additionally restores the
+  dive-computer files and c-card scans, which the bare document names by digest but does not carry.
+  The check-in details a logbook carries, and an archive's portrait, are shown beside yours in the
+  review, and only what you choose there is saved.
 - **Year in review** — each January, an email with the year before in figures: dives and time
   underwater, the deepest and longest, dive sites, and species with the ones you saw for the first
   time.

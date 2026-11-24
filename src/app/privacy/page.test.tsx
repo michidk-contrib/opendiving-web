@@ -318,15 +318,15 @@ describe.each([
     );
   });
 
-  // Linking a person to an account is the third thing shown across accounts, and
-  // the first that runs towards the diver doing it. It owes a section of its own,
-  // a line in the exceptions count, and the four facts the section exists to state:
-  // what the linker sees, that the account is told nothing, the identifier the
-  // export carries and what it encodes, and what an import can link.
-  it("gives linking a person a section of its own, and counts it among the exceptions", async () => {
+  // A connection is the third thing shown across accounts, and it runs both ways.
+  // It owes a section of its own, a line in the exceptions count, and the facts the
+  // section exists to state: what each side sees, that the account sees the diver
+  // under Added you, Hide and Disconnect, the identifier the export carries and what
+  // it encodes, what an import can connect, and what a deletion request ends.
+  it("gives connecting a person a section of its own, and counts it among the exceptions", async () => {
     await renderPage({ google });
 
-    const heading = screen.getByText(/4\.10 Linking a Person to an Account/);
+    const heading = screen.getByText(/4\.10 Connecting a Person to an Account/);
     expect(heading.tagName).toBe("H3");
     expect(screen.getByText(/There are four exceptions\./)).toHaveTextContent(
       /section 4\.10/i,
@@ -344,12 +344,27 @@ describe.each([
       section.push(node.textContent ?? "");
     }
     const text = section.join(" ");
-    expect(text).toMatch(/current username/);
-    expect(text).toMatch(/What the account is told:\s*nothing/);
+    expect(text).toMatch(/current\s+username and picture/);
+    expect(text).toMatch(
+      /What the account is shown:\s*your name, username\s+and picture/,
+    );
+    expect(text).toMatch(/Hide/);
+    expect(text).toMatch(/they are not\s+told/);
+    expect(text).toMatch(/an import cannot connect them to you\s+again/);
     expect(text).toMatch(/identifier/);
     expect(text).toMatch(/when that account was\s+created/);
-    expect(text).toMatch(/a file you import can\s+link a person/);
-    expect(text).toMatch(/every\s+person linked to it is simply unlinked/);
+    expect(text).toMatch(/a file you import can\s+connect a person/);
+    expect(text).toMatch(
+      /its picture stops being\s+shown and its connect link stops working at once/,
+    );
+    expect(text).toMatch(
+      /every person\s+connected to it is simply not connected/,
+    );
+    // Nothing on the page still says a person is linked by typing a username, or
+    // that the account is told nothing.
+    expect(document.body.textContent).not.toMatch(
+      /typing its username|tells the account nothing|told nothing|a connection between two accounts\./,
+    );
     // And the paragraph does not deny that dive buddies exist.
     expect(screen.queryByText(/There are no dive buddies/)).toBeNull();
   });
@@ -542,7 +557,7 @@ describe.each([
     const nothingSent = screen.getByText(
       /If you never open the species picker/i,
     ).textContent!;
-    expect(nothingSent).toMatch(/never import a file naming marine life/i);
+    expect(nothingSent).toMatch(/never import a file naming aquatic life/i);
     expect(nothingSent).toMatch(/nothing is sent\s+at\s+all/i);
   });
 
@@ -822,7 +837,7 @@ describe.each([
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     // It moves no section's number.
-    expect(screen.getByText(/4\.10 Linking a Person/)).toBeInTheDocument();
+    expect(screen.getByText(/4\.10 Connecting a Person/)).toBeInTheDocument();
   });
 
   it("are counted as a door of their own in §2.2 and admitted under §3", async () => {
@@ -844,7 +859,7 @@ describe.each([
     );
     if (google) {
       expect(entry).toMatch(
-        /if you came by a join link or a member’s invite link, which one/,
+        /if you came by a join link or a member’s connect link, which one/,
       );
       expect(joinParagraph()).toHaveTextContent(/section 10\.2/);
     } else {
@@ -1091,7 +1106,7 @@ describe("the Google half of the page", () => {
   // section arrives before Google: after a shift the old ones would pass while
   // pinning nothing, since a query for Google under its old number finds nothing
   // whether or not the page is right. What is pinned is the set: §4.8 is the
-  // invitations section, §4.9 the check-in links, §4.10 linking a person, §4.11
+  // invitations section, §4.9 the check-in links, §4.10 connecting a person, §4.11
   // API keys, §4.12 photo proposals and §4.13 connecting an app, all always here,
   // and Google is §4.14 and is here only when it is configured.
   it("ends section 4 at 4.13 with no gap when Google is unconfigured", async () => {
@@ -1103,7 +1118,7 @@ describe("the Google half of the page", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/4\.9 Check-in Links/)).toBeInTheDocument();
     expect(
-      screen.getByText(/4\.10 Linking a Person to an Account/),
+      screen.getByText(/4\.10 Connecting a Person to an Account/),
     ).toBeInTheDocument();
     expect(screen.getByText(/4\.11 API Keys/)).toBeInTheDocument();
     expect(
@@ -1126,7 +1141,7 @@ describe("the Google half of the page", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/4\.9 Check-in Links/)).toBeInTheDocument();
     expect(
-      screen.getByText(/4\.10 Linking a Person to an Account/),
+      screen.getByText(/4\.10 Connecting a Person to an Account/),
     ).toBeInTheDocument();
     expect(screen.getByText(/4\.11 API Keys/)).toBeInTheDocument();
     expect(
@@ -1496,40 +1511,43 @@ describe("the date on this page", () => {
   );
 });
 
-// Every member of an invite-only copy has an invite link, so its sentences are
-// unconditional - hedged in prose, as the rest of the invitation text is, since this
-// page cannot know the mode - and none of them calls it a join link, which the pins
-// above forbid on a copy without any.
+// Every member of every copy has a connect link, so its sentences are unconditional
+// - hedged in prose where it also admits, since this page cannot know the mode - and
+// none of them calls it a join link, which the pins above forbid on a copy without
+// any.
 describe.each([
   ["with Google sign-in configured", true],
   ["without Google sign-in", false],
-])("the invite link %s", (_label, google) => {
-  it("is described in §4.8 as forwardable where a typed invitation is not", async () => {
+])("the connect link %s", (_label, google) => {
+  it("is described in §4.8 as forwardable where an invitation is not", async () => {
     await renderPage({ google });
 
     expect(
-      screen.getByText(/An invitation you make by typing an address/),
+      screen.getByText(/An invitation made for an address/),
     ).toHaveTextContent(/nothing\s+to forward/);
-    const paragraph = screen.getByText(/you also have an/).closest("p")!;
-    expect(paragraph).toHaveTextContent(/Where this copy is invite-only/);
-    expect(paragraph).toHaveTextContent(/anyone holding it can\s+use it/);
-    expect(paragraph).toHaveTextContent(/until you reset or\s+remove it/);
+    const paragraph = screen.getByText(/is also a way/).closest("p")!;
+    expect(paragraph).toHaveTextContent(/anyone\s+holding it can use it/);
+    expect(paragraph).toHaveTextContent(/until\s+you reset or remove it/);
     expect(paragraph).toHaveTextContent(/written onto no account/);
     if (google) expect(paragraph).toHaveTextContent(/section 10\.2/);
     else expect(paragraph).not.toHaveTextContent(/Google/);
   });
 
-  it("says who sees which name, in both directions", async () => {
+  it("says who sees what, in both directions", async () => {
     await renderPage({ google });
 
     const told = screen
-      .getByText(/What the person you invite is told:/)
+      .getByText(/What the person invited is told:/)
       .closest("p")!;
     expect(told).toHaveTextContent(
-      /whoever opens your invite\s+link sees your name too, whether or not they go on to register/,
+      /Whoever opens your connect link sees\s+your name and picture, whether or not they go on to register/,
     );
     expect(told).toHaveTextContent(
-      /joined\s+through your invite link, the name on their account and when\s+they joined, and never their address/,
+      /their name, username and picture under Added you[\s\S]*and never their address/,
+    );
+    // No member types an address any more, so nothing tells them one is taken.
+    expect(document.body.textContent).not.toMatch(
+      /try to invite an address that already has an\s+account/,
     );
   });
 
@@ -1538,40 +1556,58 @@ describe.each([
 
     expect(
       screen.getByText(/stored while the request is pending/),
-    ).toHaveTextContent(/whether it came by that\s+account’s invite link/);
+    ).toHaveTextContent(
+      /created\s+through a member’s connect link is recorded as an\s+invitation/,
+    );
     expect(screen.getByText(/this is the whole\s+list/)).toHaveTextContent(
-      /an invite link made; an invite link\s+removed/,
+      /a connect link made; a connect link\s+removed/,
     );
     const uses = listAfterHeading(/3\. How We Use Your Information/).join(" ");
-    expect(uses).toMatch(/show your name to whoever\s+opens your invite link/);
     expect(uses).toMatch(
-      /keep each member’s invite link, and let\s+in whoever follows one/,
+      /show your name and picture to whoever opens\s+your connect link/,
     );
+    expect(uses).toMatch(/let in whoever follows a member’s\s+connect link/);
     expect(screen.getByText(/And nothing else\./)).toBeInTheDocument();
     expect(screen.getByText(/There are four exceptions\./)).toHaveTextContent(
-      /an invite link you make shows your name to whoever\s+opens it/,
+      /a connect link you make\s+shows your name and picture to whoever opens it/,
     );
     expect(screen.getByText(/nothing to switch off/)).toHaveTextContent(
-      /your invite link, which Remove on the Invitations card/,
+      /your connect link, which Remove beside it on People/,
     );
     expect(
-      screen.getByText(/does not expire: it is kept until you reset/),
+      screen.getByText(/does not expire: it is kept\s+until you reset/),
     ).toHaveTextContent(/never swept/);
+    expect(document.body.textContent).not.toMatch(
+      /invite link|Invitations card/,
+    );
   });
 
   it("never calls itself a join link where there are none", async () => {
     await renderPage({ google, joinLinks: false });
 
-    expect(document.body.textContent).toMatch(/invite link/);
+    expect(document.body.textContent).toMatch(/connect link/);
     expect(document.body.textContent).not.toMatch(/join link/i);
     if (google) {
       const entry = storageEntries().find((row) =>
         row.includes("opendiving:google-sign-in-attempts"),
       );
       expect(entry).toMatch(
-        /where this copy is invite-only and you came by a\s+member’s invite link, which link/,
+        /if you came by a member’s connect link,\s+which link/,
       );
     }
+  });
+
+  // A destination kept across sign-in can be a connect page, whose path holds the
+  // link's token.
+  it("is named among what the sign-in destination can hold", async () => {
+    await renderPage({ google });
+
+    const entry = storageEntries().find((row) =>
+      row.includes("opendiving:post-auth-redirect"),
+    );
+    expect(entry).toMatch(
+      /a\s+connect page, whose address carries its link’s token/,
+    );
   });
 });
 
@@ -2192,7 +2228,10 @@ describe("the app's downloads from a paired dive computer", () => {
       /downloads that computer’s new dives over Bluetooth by itself each time it connects, even with the phone locked/,
     );
     expect(text).toMatch(
-      /even with the phone locked, unless you switch Download automatically off for that computer\. Every download, whether it started by itself or from the app’s screen, is sent to this copy, which imports it into your logbook without a review\./,
+      /even with the phone locked, unless you switch Download automatically off for that computer\./,
+    );
+    expect(text).toMatch(
+      /Every download, whether it started by itself or from the app’s screen, is sent to this copy, which imports it into your logbook without a review\./,
     );
     expect(text).toMatch(
       /kept on the phone until this copy has them, and the app remembers which of them it has sent/,
@@ -2202,6 +2241,43 @@ describe("the app's downloads from a paired dive computer", () => {
     );
     expect(text).toMatch(
       /A file you share to the app is uploaded as it arrives and waits for your review/,
+    );
+  });
+
+  it("says what the app asks before it downloads, and that this copy keeps none of it", async () => {
+    await renderPage({ google: false });
+
+    const paragraph = screen
+      .getByText(/Dives can arrive without a tap, too/)
+      .closest("p")!;
+    const text = (paragraph.textContent ?? "").replace(/\s+/g, " ");
+    expect(text).toMatch(
+      /Before it downloads any of a computer’s dives, the app asks this copy which of the dives it would download your logbook already has, and whether each of those keeps the computer’s original download, sending the computer’s serial number and, for each of those dives, an identifier the app gives it and when the dive started\./,
+    );
+    expect(text).toMatch(
+      /The dives it would download are those newer than its last download from that computer, or every dive the computer lists where it has no last download or where you choose the dives yourself\./,
+    );
+    expect(text).toMatch(
+      /A dive your logbook has without it is downloaded only as a dive your logbook lacks would be, where it is newer than the app’s last download from that computer or where you chose it, and is then sent as well, so that the computer’s original download is kept on that dive/,
+    );
+    expect(text).toMatch(
+      /it counts these dives with the others and lists them under Dives to update; it downloads none until you have chosen/,
+    );
+    expect(text).toMatch(
+      /each dive it sent only for the computer’s original download, and does not send that dive again for that reason/,
+    );
+    expect(text).toMatch(
+      /The question names dives you may then not download, and this copy answers it without keeping any of it\./,
+    );
+    expect(text).toMatch(
+      /it downloads none until you have chosen, and it remembers on the phone the dives you chose not to download/,
+    );
+
+    const item = listAfterHeading(/2\.1 Information You Provide Directly/).find(
+      (entry) => entry.startsWith("Dive-Computer Files"),
+    );
+    expect(item).toMatch(
+      /the question it asks this copy first, about which of the dives it would download your logbook already has and whether each keeps that original download, leaves nothing here/,
     );
   });
 
@@ -2228,7 +2304,7 @@ describe("the app's downloads from a paired dive computer", () => {
       (entry) => entry.startsWith("Dive-Computer Files"),
     );
     expect(item).toMatch(
-      /keeps the computer’s original download the same way, on the dive it becomes, and is an import applied as it is uploaded/,
+      /keeps the computer’s original download the same way, on the dive it becomes or on the one your logbook already has for it, and is an import applied as it is uploaded/,
     );
   });
 });

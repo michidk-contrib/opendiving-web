@@ -168,7 +168,7 @@ export const DIVE_FORM_FIELD_GROUPS = [
   "Environment",
   "Tanks",
   "Gear",
-  "Marine life",
+  "Aquatic life",
   "Notes",
 ] as const;
 
@@ -217,7 +217,7 @@ export const DIVE_FORM_FIELD_REGISTRY: readonly DiveFormFieldEntry[] = [
   { key: "mixtures", label: "Tanks", group: "Tanks" },
   { key: "gear_item_uuids", label: "Gear", group: "Gear" },
   { key: "weight", label: "Weight", group: "Gear" },
-  { key: "sightings", label: "Species spotted", group: "Marine life" },
+  { key: "sightings", label: "Species spotted", group: "Aquatic life" },
   { key: "rating", label: "Rating", group: "Notes" },
   { key: "tags", label: "Tags", group: "Notes" },
   { key: "notes", label: "Notes", group: "Notes" },
