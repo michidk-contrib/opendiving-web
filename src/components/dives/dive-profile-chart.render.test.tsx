@@ -1136,7 +1136,7 @@ describe("DiveProfileChart markers past the end of the recorded profile", () => 
 
     expect(name).toContain("Bookmark at 25min");
     expect(name).not.toContain("53min");
-    expect(name).not.toContain("1h 40min");
+    expect(name).not.toContain("100min");
   });
 });
 
@@ -1278,7 +1278,7 @@ describe("DiveProfileChart ending at the dive's end", () => {
 
     expect(elapsedLabels(container)).toContain("60:00");
     expect(screen.getByRole("img").getAttribute("aria-label")).toMatch(
-      /^Dive profile over 1h/,
+      /^Dive profile over 60min,/,
     );
   });
 });
