@@ -58,6 +58,8 @@ export default async function PrivacyPage() {
   // `commonsPrimary`, and on every other copy reads as it always has.
   const proposingSection =
     14 + (googleClientId ? 1 : 0) + (diveConditions ? 1 : 0);
+  // A record's history follows proposing, being made only by an accepted proposal.
+  const historySection = proposingSection + 1;
 
   // Eleven things every copy has, the map tiles and the proposals where it has them.
   const outsideTheButtons = ["Eleven", "Twelve", "Thirteen"][
@@ -88,20 +90,22 @@ export default async function PrivacyPage() {
             >
               <OperatorAnswer question="Where this copy runs — §4.3, §8">
                 On Render, in its Frankfurt region, in Germany. Every part of
-                this instance is there: the app, the API, the background worker,
+                this instance runs there: the app, the API, the background
+                worker,
                 {mapTiles && <> the map renderer §4.4 describes,</>} the
                 Postgres database and the short-lived counter store §2.2
-                describes.{" "}
-                {commonsPrimary ? (
+                describes. The one copy of your account kept anywhere else is
+                the encrypted backup the next answer but one describes.
+                {commonsPrimary && (
                   <>
-                    There is no second site, and nothing of your account is
-                    copied to one. The OpenDiving Commons records section 4.
-                    {proposingSection} describes are the exception that is not
-                    yours: they are public, and they are copied to a public
-                    repository on GitHub.
+                    {" "}
+                    The OpenDiving Commons records section 4.{
+                      proposingSection
+                    }{" "}
+                    describes are the exception that is not yours: they are
+                    public, and they are copied to a public repository on
+                    GitHub.
                   </>
-                ) : (
-                  "There is no second site and nothing is copied to one."
                 )}
               </OperatorAnswer>
               <OperatorAnswer question="Where uploaded files are kept — §4.3, §8">
@@ -117,7 +121,40 @@ export default async function PrivacyPage() {
                     So are the map tiles §4.4 says this copy draws, which are
                     drawn from the map alone and are nobody&rsquo;s.
                   </>
-                )}
+                )}{" "}
+                An encrypted copy of every one of them is also kept in the
+                backup the next answer describes.
+              </OperatorAnswer>
+              <OperatorAnswer question="Where the backup is kept — §5, §7, §8">
+                An encrypted backup is, with Backblaze, in the United States. It
+                holds the database and every file this copy stores: what you
+                upload, and what this copy makes, such as an export staged for
+                an app you connected. All of it is encrypted on Render in
+                Frankfurt before it leaves, with keys that are the
+                operator&rsquo;s and are never given to Backblaze, so Backblaze
+                stores what it cannot read. The database is copied every hour,
+                and each copy is destroyed within fifteen days of being made; a
+                file&rsquo;s copy is destroyed within fifteen days of the file
+                being deleted here, the files §4.13 says go within two hours
+                included. The transfer is covered by the European
+                Commission&rsquo;s adequacy decision for the EU-U.S. Data
+                Privacy Framework (Implementing Decision (EU) 2023/1795), under
+                which Backblaze is certified, and should that decision fall, by
+                the standard contractual clauses (Decision (EU) 2021/914, Module
+                2) in{" "}
+                <a
+                  href="https://f001.backblazeb2.com/file/backblaze-policies/Backblaze-DPA-Module-2-C2P-with-Transfer-Terms.docx.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline hover:text-muted-foreground"
+                >
+                  Backblaze&rsquo;s data processing addendum
+                </a>
+                . A restore from it is rehearsed inside the EU at least once
+                every seven months, on Render in Frankfurt with its files in
+                Cloudflare R2&rsquo;s EU jurisdiction, or on a machine the
+                operator holds in the EU, and what a rehearsal decrypts is
+                deleted when it ends.
               </OperatorAnswer>
               <OperatorAnswer question="How email is sent — §4.3, §6.3">
                 Through Resend, with delivery routed through its EU region.
@@ -125,7 +162,19 @@ export default async function PrivacyPage() {
                 including email metadata, logs and API records, is stored in the
                 United States regardless, so the record that a message went to
                 your address is held there even though the message itself is not
-                sent from there.
+                sent from there. That transfer is covered by the European
+                Commission&rsquo;s adequacy decision for the EU-U.S. Data
+                Privacy Framework, under which Resend is certified, and should
+                that decision fall, by the standard contractual clauses in{" "}
+                <a
+                  href="https://resend.com/legal/dpa"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline hover:text-muted-foreground"
+                >
+                  Resend&rsquo;s data processing addendum
+                </a>
+                .
               </OperatorAnswer>
               <OperatorAnswer question="Which basemap and which geocoder — §4.4, §4.5">
                 The basemap is OpenFreeMap, at{" "}
@@ -147,40 +196,51 @@ export default async function PrivacyPage() {
                   ? ", the worker and the map renderer"
                   : " and the worker"}{" "}
                 reach the database and each other over Render&rsquo;s private
-                network rather than across the internet.
+                network. The backup does cross the internet on its way to
+                Backblaze, and it is encrypted before it sets off.
               </OperatorAnswer>
               <OperatorAnswer question="Whether the disks are encrypted at rest — §5">
-                Both providers say so, and this is their statement reported
-                rather than a promise this page makes. Render&rsquo;s
+                Render and Cloudflare say so, and this is their statement
+                reported rather than a promise this page makes. Render&rsquo;s
                 documentation says its Postgres databases are encrypted at rest
                 with AES-256, and that this covers primary instances, replicas
                 and all backups. Cloudflare&rsquo;s says every object stored in
                 R2, its metadata included, is encrypted at rest with AES-256,
-                automatically and with nothing to configure.
+                automatically and with nothing to configure. The backup with
+                Backblaze rests on no statement of Backblaze&rsquo;s: it arrives
+                already encrypted, with keys Backblaze does not hold.
               </OperatorAnswer>
               <OperatorAnswer question="Who has administrative access — §5">
                 The operator named above, and the operations staff of the
-                providers named here — Render, Cloudflare and Resend — who can
-                reach the systems their own services run on, as any
-                provider&rsquo;s can. No other person holds an administrative
-                account on this copy.
+                providers named here — Render, Cloudflare, Resend and Backblaze
+                — who can reach the systems their own services run on, as any
+                provider&rsquo;s can; at Backblaze that is a backup they cannot
+                read. No other person holds an administrative account on this
+                copy.
               </OperatorAnswer>
               <OperatorAnswer question="What logs and backups exist, and for how long — §2.2, §5, §7">
                 Render keeps this instance&rsquo;s request logs — the server
                 logs §2.2 opens with — for 7 days. The database has
-                point-in-time recovery covering the last 3 days, which is the
+                point-in-time recovery on Render covering the last 3 days. And
+                there is the encrypted backup with Backblaze described above: a
+                copy of the database every hour, each destroyed within fifteen
+                days of being made, and a copy of every file, destroyed within
+                fifteen days of the file being deleted here. Those two are the
                 whole of what §7&rsquo;s &ldquo;a deletion cannot reach into a
                 backup already written&rdquo; caveat means here.
               </OperatorAnswer>
               <OperatorAnswer question="That deletion finishes inside the 30 days §7 promises — §7">
-                It does, with room to spare. Deleting an account starts a 14-day
-                grace period, after which the data is destroyed; the 3-day
-                recovery window above is the longest a copy of it can survive in
-                a backup after that. Seventeen days at the outside.
+                It does. Deleting an account starts a 14-day grace period, after
+                which the data is destroyed here; the backup with Backblaze
+                destroys its copies of it within fifteen days after that, and
+                the 3-day recovery window above ends sooner. A deleted account
+                is gone from every backup inside 29 days.
               </OperatorAnswer>
               <OperatorAnswer question="How long an import is kept — §2.1, §7">
-                The files of an import are held for 24 hours at most, and the
-                review and log of one you applied are kept for thirty days.
+                The files of an import are held here for 24 hours at most, and
+                the backup&rsquo;s encrypted copy of each is destroyed within
+                fifteen days of the file being deleted here. The review and log
+                of an import you applied are kept for thirty days.
               </OperatorAnswer>
               <OperatorAnswer question="How to check any of this against the source — §1, §5, §11, §12">
                 Those four sections invite you to read the code rather than
@@ -315,13 +375,17 @@ export default async function PrivacyPage() {
                   copy keeps them, which may be until you delete them. A dive
                   the OpenDiving app downloads from a dive computer over
                   Bluetooth keeps the computer&rsquo;s original download the
-                  same way, on the dive it becomes, and is an import applied as
-                  it is uploaded. A file from a computer with a wrist sensor or
-                  a heart-rate strap switched on carries your heart rate, which
-                  is read into the dive log above. The account also keeps the
-                  order you put your dive computers in, by their serial numbers,
-                  which decides whose recording a dive shows by default when
-                  more than one of them recorded it
+                  same way, on the dive it becomes or on the one your logbook
+                  already has for it, and is an import applied as it is
+                  uploaded; the question it asks this copy first, about which of
+                  the dives it would download your logbook already has and
+                  whether each keeps that original download, leaves nothing
+                  here. A file from a computer with a wrist sensor or a
+                  heart-rate strap switched on carries your heart rate, which is
+                  read into the dive log above. The account also keeps the order
+                  you put your dive computers in, by their serial numbers, which
+                  decides whose recording a dive shows by default when more than
+                  one of them recorded it
                 </li>
                 <li>
                   <strong>Equipment Data:</strong> Diving equipment details and
@@ -345,9 +409,9 @@ export default async function PrivacyPage() {
                   the role each had on a dive, a trip or a course, and, if you
                   add them, an email address, a phone number and your notes.
                   What you record about a person is somebody else&rsquo;s data,
-                  which you enter. You can link a person to their account on
-                  this copy by typing its username, and section 4.10 says what
-                  that shows, and to whom
+                  which you enter. A person can be connected to their account on
+                  this copy, and section 4.10 says what makes a connection, what
+                  it shows, and to whom
                 </li>
                 <li>
                   <strong>Photo Proposals:</strong> A Wikimedia Commons file
@@ -361,9 +425,12 @@ export default async function PrivacyPage() {
                     <strong>Proposals for OpenDiving Commons:</strong> A dive
                     site of yours, or a change to a Commons site, that you
                     propose: its shared facts, which follow your edits while a
-                    new site waits, the words you ticked and when, and any
-                    message you add for the reviewer. Who reads that, and what
-                    is published, is section 4.{proposingSection}
+                    new site waits, the words you ticked and when, any message
+                    you add for the reviewer, and whether other divers may see
+                    your name beside it in the site&rsquo;s history. Who reads
+                    that, and what is published, is section 4.
+                    {proposingSection}, and what the history shows is section 4.
+                    {historySection}
                   </li>
                 )}
                 <li>
@@ -398,18 +465,44 @@ export default async function PrivacyPage() {
                 computer with the OpenDiving app on a phone, the app downloads
                 that computer&rsquo;s new dives over Bluetooth by itself each
                 time it connects, even with the phone locked, unless you switch{" "}
-                <em>Download automatically</em> off for that computer. Every
-                download, whether it started by itself or from the app&rsquo;s
-                screen, is sent to this copy, which imports it into your logbook
-                without a review. The downloaded dives are kept on the phone
-                until this copy has them, and the app remembers which of them it
-                has sent, so it sends none twice. Where the phone has no
-                internet, the app leaves iOS a request for this copy&rsquo;s
-                health check, which names no account and carries no dive, and
-                which iOS sends once there is a connection, so that the app
-                learns when it can send them. A file you share to the app is
-                uploaded as it arrives and waits for your review, as on this
-                site.
+                <em>Download automatically</em> off for that computer. Before it
+                downloads any of a computer&rsquo;s dives, the app asks this
+                copy which of the dives it would download your logbook already
+                has, and whether each of those keeps the computer&rsquo;s
+                original download, sending the computer&rsquo;s serial number
+                and, for each of those dives, an identifier the app gives it and
+                when the dive started. The dives it would download are those
+                newer than its last download from that computer, or every dive
+                the computer lists where it has no last download or where you
+                choose the dives yourself. The question names dives you may then
+                not download, and this copy answers it without keeping any of
+                it. The app leaves out the dives this copy says your logbook has
+                with their original download. A dive your logbook has without it
+                is downloaded only as a dive your logbook lacks would be, where
+                it is newer than the app&rsquo;s last download from that
+                computer or where you chose it, and is then sent as well, so
+                that the computer&rsquo;s original download is kept on that
+                dive, which this copy fills in where it lacks something the
+                download holds. Where the app asks you which of a
+                computer&rsquo;s dives to download, it counts these dives with
+                the others and lists them under <em>Dives to update</em>; it
+                downloads none until you have chosen, and it remembers on the
+                phone the dives you chose not to download, so that a later
+                download leaves them out too. Every download, whether it started
+                by itself or from the app&rsquo;s screen, is sent to this copy,
+                which imports it into your logbook without a review. The
+                downloaded dives are kept on the phone until this copy has them,
+                and the app remembers which of them it has sent, and which this
+                copy said your logbook already has, so it sends none twice. It
+                also remembers on the phone, for your account, each dive it sent
+                only for the computer&rsquo;s original download, and does not
+                send that dive again for that reason, whatever this copy answers
+                later. Where the phone has no internet, the app leaves iOS a
+                request for this copy&rsquo;s health check, which names no
+                account and carries no dive, and which iOS sends once there is a
+                connection, so that the app learns when it can send them. A file
+                you share to the app is uploaded as it arrives and waits for
+                your review, as on this site.
               </p>
               <p className="text-foreground mb-4">
                 If you allow it notifications, which its Dive Computers screen
@@ -431,15 +524,16 @@ export default async function PrivacyPage() {
                 request, or an account is created here with that address. Being
                 invited does not erase it &mdash; it becomes an{" "}
                 <strong>invitation</strong> instead, which records the address
-                invited, the account that sent it, whether it came by that
-                account&rsquo;s invite link, whether it has been used, and,
-                until it is used, whether it answered a request to be invited;
-                it is what lets you create an account here. Where this copy is
-                invite-only, every account can also make an{" "}
-                <strong>invite link</strong>, a token kept on that
+                invited, the account that sent it, whether it has been used,
+                and, until it is used, whether it answered a request to be
+                invited; it is what lets you create an account here. An account
+                created through a member&rsquo;s connect link is recorded as an
+                invitation of that member&rsquo;s too, used from the start and
+                with no address. Every account can also make a{" "}
+                <strong>connect link</strong>, a token kept on that
                 account&rsquo;s record until its owner resets or removes it.
-                Section 4.8 is about all three, and section 7 says how long each
-                is kept.
+                Section 4.8 is about all three, section 4.10 about what a
+                connect link connects, and section 7 says how long each is kept.
               </p>
               <p className="text-foreground mb-4">
                 {commonsPrimary
@@ -498,7 +592,7 @@ export default async function PrivacyPage() {
                   <strong>Account security events:</strong> A record of things
                   that happen to accounts on this copy, and this is the whole
                   list &mdash; a sign-in link requested; an invitation asked
-                  for; an invitation sent; an invite link made; an invite link
+                  for; an invitation sent; a connect link made; a connect link
                   removed; a sign-in succeeding, or a sign-in code got wrong; a
                   verified sign-in being offered a new account to make, or a
                   deleted one to bring back; an account created or restored; a
@@ -544,9 +638,9 @@ export default async function PrivacyPage() {
                   email address a sign-in link, a support request or an
                   invitation was requested for, and by account id for things you
                   can only do signed in, such as exporting your data, importing
-                  a logbook, changing your username or email, linking a person
-                  to an account, registering a passkey, making an API key,
-                  inviting somebody, proposing a photo for a species,{" "}
+                  a logbook, changing your username or email, connecting a
+                  person to an account by an import, registering a passkey,
+                  making an API key, proposing a photo for a species,{" "}
                   {commonsPrimary && "proposing for OpenDiving Commons, "}
                   looking up place and species names, and searching the dive
                   site map. Each counter is a number and expires by itself:
@@ -722,10 +816,13 @@ export default async function PrivacyPage() {
                   people, tags and check-in details, show them back to you,
                   answer a tool you gave an API key as it would answer you,
                   within what that key allows, and an app you connected, within
-                  what you approved, show you the current username of an account
-                  you linked a person to, show your check-in page to whoever
-                  holds a check-in link you made, and, where this copy is
-                  invite-only, show your name to whoever opens your invite link
+                  what you approved, show you the current username and picture
+                  of an account a person of yours is connected to, show an
+                  account that has you in its people your name, username and
+                  picture, show your check-in page to whoever holds a check-in
+                  link you made, and show your name and picture to whoever opens
+                  your connect link, and your username too where they are signed
+                  in
                 </li>
                 <li>
                   <strong>Account Management:</strong> Sign you in, keep you
@@ -750,8 +847,8 @@ export default async function PrivacyPage() {
                   copy is invite-only, keep its invitations and the requests
                   waiting on them, so that the address that was invited is the
                   one that gets in, and so that whoever runs this copy can see
-                  who has asked; keep each member&rsquo;s invite link, and let
-                  in whoever follows one
+                  who has asked; and let in whoever follows a member&rsquo;s
+                  connect link
                   {joinLinks && (
                     <>, and let in whoever follows one of its join links</>
                   )}
@@ -797,9 +894,11 @@ export default async function PrivacyPage() {
                     <strong>Keep OpenDiving Commons:</strong> Show what you
                     propose for OpenDiving Commons to whoever reviews it, tell
                     you what became of it, publish what is accepted, without
-                    your name, and keep the proposal as the evidence of what you
-                    affirmed. Section 4.{proposingSection} says exactly what
-                    that shows and publishes
+                    your name, keep a history of what each accepted proposal
+                    changed, showing your name beside it only where you chose
+                    to, and keep the proposal as the evidence of what you
+                    affirmed. Sections 4.{proposingSection} and 4.
+                    {historySection} say exactly what that shows and publishes
                   </li>
                 )}
                 <li>
@@ -849,24 +948,27 @@ export default async function PrivacyPage() {
                   ? "No setting publishes anything: the one way something you entered becomes public is a proposal a reviewer accepts, one site at a time. You make every other exception yourself too:"
                   : "There is no setting that makes any of it public, because there is nothing for such a setting to do. The exceptions are ones you make yourself:"}{" "}
                 a check-in link shows your check-in page to whoever holds it,
-                for a day, and section 4.9 says exactly what that shows; where
-                this copy is invite-only, an invite link shows your name &mdash;
-                and nothing you entered &mdash; to whoever opens it, until you
-                reset or remove it, as section 4.8 says; an API key you make
-                lets whatever holds it read your account as you &mdash; and
-                change it, if you let it &mdash; until it expires or you revoke
-                it, as section 4.11 says; where this copy lets apps connect, an
-                app you connect reads your account as you &mdash; and changes
-                it, if you let it &mdash; until the connection ends, and what it
-                reads goes to the app, as section 4.13 says;{" "}
-                {!commonsPrimary && "and "}a photo a tool or an app of yours
-                proposes for a species is shown, with your name and its note, to
-                whoever runs this copy, as section 4.12 says
+                for a day, and section 4.9 says exactly what that shows; your
+                connect link shows your name and picture &mdash; and nothing you
+                entered &mdash; to whoever opens it, until you reset or remove
+                it, and a diver connected to you sees your username and picture,
+                as section 4.10 says; an API key you make lets whatever holds it
+                read your account as you &mdash; and change it, if you let it
+                &mdash; until it expires or you revoke it, as section 4.11 says;
+                where this copy lets apps connect, an app you connect reads your
+                account as you &mdash; and changes it, if you let it &mdash;
+                until the connection ends, and what it reads goes to the app, as
+                section 4.13 says; {!commonsPrimary && "and "}a photo a tool or
+                an app of yours proposes for a species is shown, with your name
+                and its note, to whoever runs this copy, as section 4.12 says
                 {commonsPrimary && (
                   <>
-                    ; and a dive site or a change you propose is read by whoever
+                    ; a dive site or a change you propose is read by whoever
                     reviews it and, once accepted, is public for good, as{" "}
-                    section 4.{proposingSection} says
+                    section 4.{proposingSection} says; and, where you choose it
+                    for a proposal, your name is shown beside what it changed in
+                    the site&rsquo;s history to every account here, as section
+                    4.{historySection} says
                   </>
                 )}
                 .
@@ -879,8 +981,9 @@ export default async function PrivacyPage() {
                 {commonsPrimary
                   ? "What you enter stays in your account unless you propose it for OpenDiving Commons, or a tool or an app of yours proposes a photo for a species. There are no groups, nothing one diver can post for another, and no shared logs,"
                   : "What you enter stays in your account unless a tool or an app of yours proposes a photo for a species. There are no groups, no comments and no shared logs,"}{" "}
-                and the people you record are your own notes about them rather
-                than a connection between two accounts.{" "}
+                and a person you record is your own note about them, which a
+                connection to their account adds only that account&rsquo;s
+                username and picture to.{" "}
                 {commonsPrimary ? (
                   <>
                     Another diver with an account on this same copy sees no
@@ -894,32 +997,32 @@ export default async function PrivacyPage() {
                 ) : (
                   "Another diver with an account on this same copy cannot see any dive, dive site you added, trip, gear item, course, certification, contact, person or tag of yours. Whoever runs this copy does read a photo proposal of yours, as section 4.12 says."
                 )}{" "}
-                What does cross between accounts, when you link a person to one,
-                runs towards you and is small: that an account with the username
-                you typed, or with the identifier a file you imported carried,
-                exists here; what its username is now; and, in your own export,
-                its identifier.
+                What does cross between accounts is a connection, and it runs
+                both ways: a person of yours connected to an account shows you
+                that account&rsquo;s current username and picture, and shows
+                that account your name, username and picture; and an account
+                that connects a person to you is shown to you the same way. Your
+                own export carries the identifier of each account a person of
+                yours is connected to.
               </p>
               <p className="text-foreground mb-4">
-                There are {commonsPrimary ? "five" : "four"} exceptions. The
-                first is not about anything you entered: inviting somebody shows
-                them your name, and shows you whether they went on to register;
-                and, where this copy is invite-only, an invite link you make
-                shows your name to whoever opens it, and shows you the name on
-                the account of anyone who creates one through it. Section 4.8
-                sets out exactly what that discloses, in both directions. The
-                second is exactly about what you entered: a check-in link you
-                make shows your check-in page to whoever holds the link, another
-                diver included, until it expires or you revoke it. Section 4.9
-                sets out what that shows. The third runs the other way and is
-                about another account rather than yours: linking a person you
-                recorded to an account here shows you that account&rsquo;s
-                current username, and tells the account nothing. Section 4.10
-                sets out what that discloses. The fourth is about what you
-                entered, and only a tool or an app of yours can make it: a photo
-                it proposes for a species is shown to whoever runs this copy,
-                with your name and its note. Section 4.12 sets out what that
-                shows.
+                There are {commonsPrimary ? "six" : "four"} exceptions. The
+                first is not about anything you entered: a connect link you make
+                shows your name and picture to whoever opens it, and, where this
+                copy is invite-only, lets them create an account here, counted
+                as your invitation. Section 4.8 sets out what that discloses.
+                The second is exactly about what you entered: a check-in link
+                you make shows your check-in page to whoever holds the link,
+                another diver included, until it expires or you revoke it.
+                Section 4.9 sets out what that shows. The third runs both ways:
+                a person connected to an account here shows its diver that
+                account&rsquo;s current username and picture, and shows the
+                account the diver&rsquo;s name, username and picture, under its
+                Added you. Section 4.10 sets out what that discloses. The fourth
+                is about what you entered, and only a tool or an app of yours
+                can make it: a photo it proposes for a species is shown to
+                whoever runs this copy, with your name and its note. Section
+                4.12 sets out what that shows.
                 {commonsPrimary && (
                   <>
                     {" "}
@@ -928,6 +1031,10 @@ export default async function PrivacyPage() {
                     OpenDiving Commons is shown to whoever reviews it, with your
                     name, and what is accepted is public, without it. Section 4.
                     {proposingSection} sets out what that shows and publishes.
+                    The sixth is your name alone, and you choose it for each
+                    proposal: where you do, every account here sees it beside
+                    what that proposal changed in the site&rsquo;s history.
+                    Section 4.{historySection} sets out what that shows.
                   </>
                 )}
               </p>
@@ -950,7 +1057,7 @@ export default async function PrivacyPage() {
                 and dives you add to it are yours alone: they are kept apart
                 from the record, and no other account can see them
                 {commonsPrimary
-                  ? ". Nor can another account see that you use the site, apart from whoever reviews a change you propose to it."
+                  ? ". Nor can another account see that you use the site, apart from whoever reviews a change you propose to it, and every account here where you choose to have your name shown beside that change in the site's history."
                   : ", or that you use the site at all."}{" "}
                 Removing a Commons site from your sites deletes your notes and
                 tags on it and takes it off your dives, which stay in your log,
@@ -1168,7 +1275,7 @@ export default async function PrivacyPage() {
               </p>
               <p className="text-foreground mb-4">
                 Importing a logbook does the same thing without a picker being
-                involved at all. A logbook file can name marine life this copy
+                involved at all. A logbook file can name aquatic life this copy
                 of OpenDiving has never seen, and those species are looked up
                 before the import is written &mdash; the same two registers, the
                 same request, carrying the species&rsquo; number and nothing
@@ -1203,7 +1310,7 @@ export default async function PrivacyPage() {
                 All of this happens only as you fill a dive in or import a
                 logbook, never when you view a dive, a species or your species
                 list you have already saved. If you never open the species
-                picker, never import a file naming marine life and never have a
+                picker, never import a file naming aquatic life and never have a
                 tool or an app propose a photo for a species, nothing is sent at
                 all. A photo proposal is the one case in which Wikimedia Commons
                 is sent a name you chose rather than one worked out here, and
@@ -1257,14 +1364,15 @@ export default async function PrivacyPage() {
                 account on it or only people who have been invited
                 {joinLinks && <> or who follow one of its join links</>}. Where
                 it is invitations, this is one of the{" "}
-                {commonsPrimary ? "five" : "four"} places in the software where
+                {commonsPrimary ? "six" : "four"} places in the software where
                 something about one person is shown to another &mdash; the
-                others are a check-in link, in section 4.9, linking a person to
-                an account, in section 4.10,{" "}
+                others are a check-in link, in section 4.9, a connection between
+                two accounts, in section 4.10,{" "}
                 {commonsPrimary ? (
                   <>
-                    a photo proposal, in section 4.12, and a proposal for
-                    OpenDiving Commons, in section 4.{proposingSection}
+                    a photo proposal, in section 4.12, a proposal for OpenDiving
+                    Commons, in section 4.{proposingSection}, and a name in a
+                    Commons site&rsquo;s history, in section 4.{historySection}
                   </>
                 ) : (
                   "and a photo proposal, in section 4.12"
@@ -1272,61 +1380,49 @@ export default async function PrivacyPage() {
                 &mdash; and this section is the whole of it.
               </p>
               <p className="text-foreground mb-4">
-                An invitation you make by typing an address carries no code, no
-                link and no token &mdash; it is simply a note that this copy
-                will let a particular address create an account. So there is
-                nothing to forward and nothing to keep secret, and the person
-                invited still has to prove they can read that mailbox in the
-                ordinary way.
+                An invitation made for an address carries no code, no link and
+                no token &mdash; it is simply a note that this copy will let a
+                particular address create an account. Whoever runs this copy
+                makes them, from its admin pages. So there is nothing to forward
+                and nothing to keep secret, and the person invited still has to
+                prove they can read that mailbox in the ordinary way.
               </p>
               <p className="text-foreground mb-4">
-                Where this copy is invite-only, you also have an{" "}
-                <strong>invite link</strong> of your own, on the Invitations
-                card in your settings: an address on this site, shown as a QR
-                code or sent, that lets whoever follows it create an account
-                here, counted as your invitation. It is the opposite of a typed
-                invitation in the one way that matters: anyone holding it can
-                use it, whatever address they sign in with, until you reset or
-                remove it, and each account made through it counts against the
-                same limit as the invitations you send. What it carries is kept
-                only where letting somebody in needs it: signing in by email, on
-                the sign-in link&rsquo;s own record, which is deleted within
-                about a week
+                Your <strong>connect link</strong>, on People, is also a way in:
+                an address on this site, shown as a QR code or sent, that lets
+                whoever follows it create an account here, counted as your
+                invitation, as well as connect to you (section 4.10). It is the
+                opposite of an invitation in the one way that matters: anyone
+                holding it can use it, whatever address they sign in with, until
+                you reset or remove it, and each account made through it counts
+                against a limit on how many invitations you may make in a day.
+                What it carries is kept only where letting somebody in needs it:
+                signing in by email, on the sign-in link&rsquo;s own record,
+                which is deleted within about a week
                 {googleClientId && (
                   <>
                     ; signing in with Google, in your browser until Google sends
                     you back, as section 10.2 says
                   </>
                 )}
-                . It is written onto no account.
+                . The link itself is written onto no account; the account made
+                through it starts with you in its people, connected.
               </p>
               <p className="text-foreground mb-4">
-                <strong>What the person you invite is told:</strong> your name,
-                as it is on your account, and that you invited them to this
-                copy. Where this copy is invite-only, whoever opens your invite
-                link sees your name too, whether or not they go on to register,
-                and is told, before they sign in, that you will see the name on
-                their account. Nothing else about you, and nothing you have
-                logged. <strong>What you are told:</strong> the address you
-                invited, when you invited it, and whether it has been used to
-                create an account &mdash; which is a fact about them, arriving
-                because of something you did; and, for somebody who joined
-                through your invite link, the name on their account and when
-                they joined, and never their address. Whoever runs this copy can
-                see the same, because they can read the database on their own
-                machine, which is true of everything on this page.
-              </p>
-              <p className="text-foreground mb-4">
-                One thing more is disclosed, and only to the person doing the
-                inviting: if you try to invite an address that already has an
-                account here, this copy says so rather than leaving you to
-                wonder why nothing arrived. That does tell you an address is
-                registered, so what bounds it is a limit on how many invitations
-                one account may <em>attempt</em> in a quarter of an hour,
-                counted with the other rate limits in section 2.2 &mdash; not
-                the separate limit on how many invitations you may make in a
-                day, by address or through your invite link, which counts only
-                invitations actually made and so never counts a refusal.
+                <strong>What the person invited is told:</strong> the name of
+                whoever invited them, as it is on their account, and that they
+                were invited to this copy. Whoever opens your connect link sees
+                your name and picture, whether or not they go on to register,
+                and is told, before they sign in, that an account made through
+                it starts with you in its people and that you will see its name,
+                username and picture. Nothing else about you, and nothing you
+                have logged. <strong>What you are told:</strong> of somebody who
+                joined through your connect link, what any connection shows you
+                &mdash; their name, username and picture under Added you, as
+                section 4.10 says &mdash; and never their address. Whoever runs
+                this copy can see who invited whom, and when, because they can
+                read the database on their own machine, which is true of
+                everything on this page.
               </p>
               <p className="text-foreground mb-4">
                 If this copy is not taking new accounts on its own, its home
@@ -1422,43 +1518,65 @@ export default async function PrivacyPage() {
                 7 says when a link is deleted.
               </p>
 
-              {/* Unconditional too: every diver on every copy can link a person,
-                so Google stays after it. */}
+              {/* Unconditional too: every diver on every copy can connect a
+                person, so Google stays after it. */}
               <h3 className="text-xl font-semibold text-foreground mb-3">
-                4.10 Linking a Person to an Account
+                4.10 Connecting a Person to an Account
               </h3>
               <p className="text-foreground mb-4">
                 A person you record &mdash; a buddy, an instructor &mdash; may
-                have an account on this same copy. Type that account&rsquo;s
-                username into the person and this copy links the two, so that
-                the username the account has now shows beside the name you gave
-                them.{" "}
+                have an account on this same copy, and the two can be connected,
+                so that the account&rsquo;s current username and picture show
+                beside the name you gave them.{" "}
                 {commonsPrimary
-                  ? "This is the third of the five places"
+                  ? "This is the third of the six places"
                   : "This is the third of the four places"}{" "}
                 in the software where something about one person is shown to
                 another, and this section is the whole of it.
               </p>
               <p className="text-foreground mb-4">
-                <strong>What you are shown:</strong> whether an account with
-                exactly that username exists here &mdash; which choosing a
-                username of your own already tells anyone, since a username that
-                exists is one you cannot take &mdash; and, once the person is
-                linked, that account&rsquo;s current username, kept current if
-                it changes. Nothing else of theirs: not their name, not their
-                picture, and nothing they have logged. Typing your own username
-                is refused, and so is typing one another of your people is
-                already linked to &mdash; the refusal names that person.{" "}
-                <strong>What the account is told:</strong> nothing. No message
-                is sent, and nothing in that account shows that anyone linked
-                it. Linking changes what you see, not what they see or hold.
-                Whoever runs this copy can see the link, because they can read
-                the database on their own machine, which is true of everything
-                on this page.
+                <strong>What makes a connection:</strong> opening an
+                account&rsquo;s <strong>connect link</strong> and saving the
+                person it offers; <strong>Add</strong> on a row under{" "}
+                <em>Added you</em>, which lists the accounts that have a person
+                connected to you; creating your account through a connect link,
+                which starts it with that link&rsquo;s owner in your people,
+                connected; and an import, below. A person connected by typing a
+                username, before connect links, is connected in the same way.
+                Your own account cannot be connected to, nor one another of your
+                people is already connected to &mdash; the refusal names that
+                person.
+              </p>
+              <p className="text-foreground mb-4">
+                <strong>What you are shown:</strong> where you open a connect
+                link, its owner&rsquo;s name and picture, and, signed in, their
+                username; once a person is connected, the account&rsquo;s
+                current username and picture, kept current if either changes.
+                Nothing else of theirs, and nothing they have logged.{" "}
+                <strong>What the account is shown:</strong> your name, username
+                and picture, under its <em>Added you</em>, until it adds you
+                back. That is how it is told: no message is sent.{" "}
+                <strong>Hide</strong> takes you off that list and changes
+                nothing else, and there is no undo; you come back only once your
+                connection is cut and made again. Whoever runs this copy can see
+                every connection, because they can read the database on their
+                own machine, which is true of everything on this page.
+              </p>
+              <p className="text-foreground mb-4">
+                <strong>Disconnecting:</strong> <strong>Disconnect</strong> on a
+                person of yours drops your connection and keeps the person.{" "}
+                <strong>Disconnect</strong> on a row under <em>Added you</em>{" "}
+                cuts that diver&rsquo;s connection to you: their person stays,
+                as a name with no picture and no username, and they are not
+                told. They can connect again through your connect link while it
+                stands, which Reset ends. This copy keeps the fact that you
+                disconnected them, so that an import cannot connect them to you
+                again; connecting again through your link, or by Add, clears it,
+                and it goes when either account does.
               </p>
               <p className="text-foreground mb-4">
                 <strong>What your export carries:</strong> for each person you
-                linked, the linked account&rsquo;s identifier on this copy
+                connected, the connected account&rsquo;s identifier on this copy
                 &mdash; the same identifier that account&rsquo;s own export
                 carries for itself. It also encodes when that account was
                 created, to the millisecond, so a file you hand to somebody else
@@ -1466,25 +1584,28 @@ export default async function PrivacyPage() {
               </p>
               <p className="text-foreground mb-4">
                 <strong>What an import can do:</strong> a file you import can
-                link a person to the account on this copy its entry names by
-                that identifier &mdash; not your own, and not one another of
-                your people is already linked to &mdash; and the import&rsquo;s
-                report names each account it links by its current username,
-                which the file itself did not carry. So a logbook somebody else
-                exported tells whoever imports it here the current usernames of
-                the accounts its author linked. An identifier naming no account
-                here is dropped, and that person arrives unlinked.
+                connect a person to the account on this copy its entry names by
+                that identifier &mdash; not your own, not one another of your
+                people is already connected to, and not one that has
+                disconnected you &mdash; and the import&rsquo;s report names
+                each account it connects by its current username, which the file
+                itself did not carry. That account then shows you its picture,
+                and sees you under <em>Added you</em>. So a logbook somebody
+                else exported lets whoever imports it here connect to the
+                accounts its author connected, and see their pictures, until
+                each of them disconnects. An identifier naming no account here,
+                or one that has disconnected you, is dropped, and that person
+                arrives not connected. What bounds it is a limit on how many
+                connections an import may make in a quarter of an hour, counted
+                with the other rate limits in section 2.2.
               </p>
               <p className="text-foreground mb-4">
-                Since whether a username exists is something linking reveals,
-                what bounds it is a limit on how many links one account may{" "}
-                <em>attempt</em> in a quarter of an hour, typed or imported,
-                counted with the other rate limits in section 2.2. Typing the
-                username a person is already linked to again counts for nothing.
-                Clearing the username, or deleting the person, removes the link
-                at once. If the linked account is deleted, the link stays
-                through its grace period, and once the account is erased every
-                person linked to it is simply unlinked &mdash; the record you
+                Deleting the person ends the connection at once. When a
+                connected account asks to be deleted, its picture stops being
+                shown and its connect link stops working at once, and it leaves
+                every <em>Added you</em>; its username still shows through its
+                grace period, and once the account is erased every person
+                connected to it is simply not connected &mdash; the record you
                 kept of them stays yours.
               </p>
 
@@ -1531,7 +1652,7 @@ export default async function PrivacyPage() {
                 {commonsPrimary &&
                   ", and send a proposal for OpenDiving Commons"}
                 . No key can make, list or revoke API keys, passkeys or
-                signed-in devices, make a check-in link or an invite link,
+                signed-in devices, make a check-in link or a connect link,
                 change the email address you sign in with, or delete your
                 account &mdash; those need you signed in, in a browser or the
                 OpenDiving app &mdash; and none reaches anything only whoever
@@ -1541,11 +1662,11 @@ export default async function PrivacyPage() {
               </p>
               <p className="text-foreground mb-4">
                 <strong>For how long:</strong> until the expiry you chose when
-                you made it &mdash; 30 days, 90 days, a year, or never &mdash;
-                or until you revoke it on the API keys card, which stops it on
-                its very next request. Signing out, or signing other devices
-                out, leaves every key working. Asking to delete your account
-                stops all of them.
+                you made it &mdash; an hour, a day, 7 days, 30 days, 90 days, a
+                year, or never &mdash; or until you revoke it on the API keys
+                card, which stops it on its very next request. Signing out, or
+                signing other devices out, leaves every key working. Asking to
+                delete your account stops all of them.
               </p>
               <p className="text-foreground mb-4">
                 <strong>What this copy keeps:</strong> a fingerprint of the key
@@ -1665,8 +1786,8 @@ export default async function PrivacyPage() {
                 photo for a species, which shows something of yours to whoever
                 runs this copy, as section 4.12 describes for a key. No
                 connection can make, list or revoke API keys, passkeys,
-                signed-in devices or connections, make a check-in link, invite
-                anyone or make an invite link,
+                signed-in devices or connections, make a check-in link or a
+                connect link,
                 {commonsPrimary && " propose for OpenDiving Commons,"} change
                 the email address you sign in with, or delete your account, and
                 none reaches anything only whoever runs this copy can.
@@ -1844,8 +1965,10 @@ export default async function PrivacyPage() {
                     until you tick the words it shows you and send it. This is
                     the fifth place in the software where something about one
                     person is shown to another, the third that shows what you
-                    entered, and the only one that publishes anything, and this
-                    section is the whole of it.
+                    entered, and the only one that publishes anything. This
+                    section is the whole of it but the name you may choose to
+                    show in the site&rsquo;s history, which section 4.
+                    {historySection} sets out.
                   </p>
                   <p className="text-foreground mb-4">
                     <strong>What a reviewer is shown:</strong> whoever runs this
@@ -1860,7 +1983,8 @@ export default async function PrivacyPage() {
                     follows the site&rsquo;s edits while it waits, so an edit
                     you make meanwhile is what is in front of them. Never your
                     notes, your tags or your dives, and no other diver is shown
-                    any of it.
+                    any of it, apart from your name beside an accepted change in
+                    the site&rsquo;s history where you choose that.
                   </p>
                   <p className="text-foreground mb-4">
                     <strong>What is published:</strong> if a reviewer accepts,
@@ -1871,13 +1995,15 @@ export default async function PrivacyPage() {
                     created the site, to the millisecond. A change publishes the
                     new values on the record it changes. Who proposed it is
                     never published: no name, no address and no account goes
-                    with it. A site of yours that is accepted stops being yours,
-                    and every account here can use it; your notes, tags and
-                    dives on it stay yours, as section 4.2 says. Where the
-                    Commons already has the site, the reviewer may accept yours
-                    into that record instead: your dives, notes and tags move to
-                    the record and your own site is removed, though its
-                    identifier is kept with your account, pointing at the
+                    with it. Divers with an account here see your name beside it
+                    only where you choose that, as section 4.
+                    {historySection} says. A site of yours that is accepted
+                    stops being yours, and every account here can use it; your
+                    notes, tags and dives on it stay yours, as section 4.2 says.
+                    Where the Commons already has the site, the reviewer may
+                    accept yours into that record instead: your dives, notes and
+                    tags move to the record and your own site is removed, though
+                    its identifier is kept with your account, pointing at the
                     record, until your account goes.
                   </p>
                   <p className="text-foreground mb-4">
@@ -1917,13 +2043,14 @@ export default async function PrivacyPage() {
                   <p className="text-foreground mb-4">
                     <strong>What this copy keeps privately:</strong> the
                     proposal &mdash; what you asked for, the words you ticked
-                    and when, your message, whether it waits or was accepted,
-                    declined or withdrawn, and any reason. It is tied to your
-                    account and is never published. It is kept so that it can be
-                    reviewed and answered, so that you can see what became of
-                    it, and as the evidence that you made the dedication. It
-                    goes when your account goes, whatever became of it, and
-                    section 7 has the rest of how long it stays.
+                    and when, your message, whether other divers may see your
+                    name beside it in the site&rsquo;s history, whether it waits
+                    or was accepted, declined or withdrawn, and any reason. It
+                    is tied to your account and is never published. It is kept
+                    so that it can be reviewed and answered, so that you can see
+                    what became of it, and as the evidence that you made the
+                    dedication. It goes when your account goes, whatever became
+                    of it, and section 7 has the rest of how long it stays.
                   </p>
                   <p className="text-foreground mb-4">
                     <strong>What happens to it:</strong> while it waits,
@@ -1948,7 +2075,8 @@ export default async function PrivacyPage() {
                     this copy, as section 13 says. An accepted record is a
                     different matter, because it carries nothing that names you
                     and it is no longer yours to withdraw: deleting the proposal
-                    behind it leaves it public.
+                    behind it leaves it public, and takes your name off its
+                    history.
                   </p>
                   <p className="text-foreground mb-4">
                     <strong>Reporting a record:</strong> anyone, with an account
@@ -1958,6 +2086,58 @@ export default async function PrivacyPage() {
                     the way section 13 gives. A report is answered by changing
                     the record, a reviewer coarsening the pin or changing the
                     name. A record cannot yet be removed.
+                  </p>
+
+                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                    4.{historySection} A Commons Site&rsquo;s History
+                  </h3>
+                  <p className="text-foreground mb-4">
+                    A Commons record edited on this copy keeps a history: each
+                    accepted proposal that adds the record or changes it leaves
+                    an entry with the date and, for a change, each fact&rsquo;s
+                    value before and after. Every account here can read it on
+                    the site&rsquo;s page. This is the sixth place in the
+                    software where something about one person is shown to
+                    another, and this section is the whole of it.
+                  </p>
+                  <p className="text-foreground mb-4">
+                    <strong>Whose name it shows:</strong> yours, beside what a
+                    proposal of yours changed, only if you chose it for that
+                    proposal with <em>Show my name to other divers</em>, which
+                    is off unless you tick it. The name shown is the one on your
+                    account as it is when the page is read, so a rename shows
+                    there too; never your address. Where a reviewer corrects
+                    what you proposed before accepting it, the correction is
+                    listed apart, above your change, as the reviewer&rsquo;s own
+                    change, under the name on that administrator&rsquo;s
+                    account, to every account here.
+                  </p>
+                  <p className="text-foreground mb-4">
+                    <strong>Changing your mind:</strong> the choice is made one
+                    proposal at a time, as you send it, and can be changed for a
+                    proposal that waits or was accepted with the same switch in{" "}
+                    <em>Your proposals</em> on the Sites page. Switching it off
+                    takes your name off that entry the next time anyone reads
+                    the page, and switching it on puts it back. A declined or
+                    withdrawn proposal makes no entry, and has no switch.
+                  </p>
+                  <p className="text-foreground mb-4">
+                    <strong>What a reviewer is shown:</strong> whoever reviews
+                    proposals sees your name beside your entries whatever you
+                    chose, and whether you chose to show it, on the review and
+                    on the site&rsquo;s page. Each entry also keeps which
+                    administrator accepted it, which only administrators are
+                    shown.
+                  </p>
+                  <p className="text-foreground mb-4">
+                    <strong>What stays and what goes:</strong> the choice is
+                    part of the proposal, and goes with it when your account
+                    goes; your name leaves the history as soon as you ask to
+                    delete the account. The entry stays, with its date and its
+                    values, and from then on names nobody. The same holds for a
+                    reviewer whose account goes. The history is kept on this
+                    copy alone: the public repository on GitHub and other copies
+                    of the Commons never carry a name, or the history.
                   </p>
                 </>
               )}
@@ -2055,10 +2235,9 @@ export default async function PrivacyPage() {
                   revoke it
                 </li>
                 <li>
-                  Where this copy is invite-only, invite someone, make, reset or
-                  remove your invite link, see the invitations you have sent and
-                  who joined through your link, and take back one that has not
-                  been used
+                  Make, reset or remove your connect link, see who has added
+                  you, hide them or disconnect them, and disconnect a person of
+                  yours from the account it is connected to
                 </li>
                 <li>
                   {commonsPrimary
@@ -2084,12 +2263,12 @@ export default async function PrivacyPage() {
                   ? "what you log is neither public nor shared unless you propose it, so there is nothing to switch off. What does have a switch is a check-in link you made, which"
                   : "nothing you log is public or shared, so there is nothing to switch off. The exceptions are a check-in link you made, which"}{" "}
                 Revoke on your check-in page switches off at once &mdash;
-                section 4.9; where this copy is invite-only, your invite link,
-                which Remove on the Invitations card switches off at once
-                &mdash; section 4.8; an API key you made, which Revoke on the
-                API keys card switches off at once &mdash; section 4.11; where
-                this copy lets apps connect, a connected app, which Revoke under
-                MCP switches off at once &mdash; section 4.13;{" "}
+                section 4.9; your connect link, which Remove beside it on People
+                switches off at once, and a connection, which Disconnect cuts at
+                once &mdash; section 4.10; an API key you made, which Revoke on
+                the API keys card switches off at once &mdash; section 4.11;
+                where this copy lets apps connect, a connected app, which Revoke
+                under MCP switches off at once &mdash; section 4.13;{" "}
                 {!commonsPrimary && "and "}a photo proposal that waits, which
                 only a tool or a connected app can withdraw, through the API
                 &mdash; section 4.12
@@ -2098,7 +2277,9 @@ export default async function PrivacyPage() {
                     ; and a proposal that waits, which Withdraw on the site or
                     in your list of proposals takes back at once &mdash; section
                     4.{proposingSection}. A proposal already accepted has no
-                    switch: it is public, and it stays
+                    switch: it is public, and it stays. Your name beside one in
+                    the site&rsquo;s history does have one, in your list of
+                    proposals &mdash; section 4.{historySection}
                   </>
                 )}
                 .
@@ -2213,18 +2394,17 @@ export default async function PrivacyPage() {
                 diver typed, for the express purpose of proving they can read
                 it. Neither of those two is something the recipient can prevent,
                 because the alternative is a sign-in flow that cannot start. The
-                invitation goes to whatever address somebody with an account
-                here invited, and names them so you know who; it is not
-                preventable either, but for a different reason and it is worth
-                being exact about which. Nothing turns on its arrival &mdash;
-                the address is admitted the moment the invitation is made, so
-                the message is a courtesy rather than a step, and the person who
-                invited you could as easily have told you by other means. What
-                makes it unpreventable is that this copy has no way to know,
-                before sending, that an address would rather not hear from it.
-                What bounds it instead is the limit in section 4.8 on how many
-                invitations one account may make, by address or through its
-                invite link.
+                invitation goes to whatever address whoever runs this copy
+                invited, and names them so you know who; it is not preventable
+                either, but for a different reason and it is worth being exact
+                about which. Nothing turns on its arrival &mdash; the address is
+                admitted the moment the invitation is made, so the message is a
+                courtesy rather than a step, and the person who invited you
+                could as easily have told you by other means. What makes it
+                unpreventable is that this copy has no way to know, before
+                sending, that an address would rather not hear from it. What
+                bounds it instead is that only whoever runs this copy can invite
+                an address.
               </p>
               <p className="text-foreground mb-4">
                 Being sent to your own address is not the same as being sent
@@ -2369,11 +2549,13 @@ export default async function PrivacyPage() {
                 it, or sooner if you revoked it or made another.
               </p>
               <p className="text-foreground mb-4">
-                Where this copy is invite-only, an <strong>invite link</strong>{" "}
-                does not expire: it is kept until you reset or remove it, or
-                your account goes. An invitation made through one is used from
+                A <strong>connect link</strong> does not expire: it is kept
+                until you reset or remove it, or your account goes. Where this
+                copy is invite-only, an invitation made through one is used from
                 the start, so it is never swept either, and goes when either
-                account does.
+                account does. A <strong>disconnect</strong> you made from{" "}
+                <em>Added you</em> is kept until that diver connects to you
+                again by your link or by Add, or either account goes.
               </p>
               <p className="text-foreground mb-4">
                 An <strong>API key</strong> is not swept either. It is kept,
@@ -2411,7 +2593,10 @@ export default async function PrivacyPage() {
                   <strong>record accepted into the Commons</strong> is kept for
                   as long as the Commons is, whatever becomes of your account:
                   it belongs to no account, and section 4.{proposingSection}{" "}
-                  says what it carries.
+                  says what it carries. So is each{" "}
+                  <strong>entry in its history</strong>, which names nobody once
+                  the proposal behind it has gone with its account, as section
+                  4.{historySection} says.
                 </p>
               )}
               {mapTiles && (
@@ -2473,16 +2658,18 @@ export default async function PrivacyPage() {
                 )}
                 <li>
                   Any invitations you sent go with it, used or not, and so does
-                  your invite link. Somebody you invited who has not created an
+                  your connect link. Somebody you invited who has not created an
                   account yet loses the invitation and would have to be invited
                   again by someone else. Any invitation or pending request
                   naming <em>your</em> address is found by that address and
                   removed as well
                 </li>
                 <li>
-                  Every person another diver linked to your account is unlinked.
-                  Their record of that person stays theirs, and from then on
-                  shows no username
+                  Every person another diver connected to your account stops
+                  showing your picture, and you leave every <em>Added you</em>,
+                  as soon as you ask to delete the account; once it is erased,
+                  every such person is simply not connected. Their record of
+                  that person stays theirs, and from then on shows no username
                 </li>
                 <li>
                   Your sessions, your API keys, your connected apps with their
@@ -2499,7 +2686,7 @@ export default async function PrivacyPage() {
               </ul>
               <p className="text-foreground mb-4">
                 {commonsPrimary
-                  ? "Apart from the daily totals above and the records accepted into OpenDiving Commons, neither of which names you, nothing is kept for"
+                  ? "Apart from the daily totals above and the records accepted into OpenDiving Commons with their history, none of which names you once you have asked to delete your account, nothing is kept for"
                   : "Apart from the daily totals above, which name nobody, nothing is held back for"}{" "}
                 &ldquo;legitimate business purposes&rdquo;; there is no business
                 here to have them. Two honest caveats remain, and both belong to
@@ -2520,12 +2707,13 @@ export default async function PrivacyPage() {
                 about its operator&rsquo;s deployment.{" "}
                 {commonsPrimary ? (
                   <>
-                    There is no network of servers behind it, and nothing of
-                    your account leaves it on its own. What does is the
-                    OpenDiving Commons records section 4.{proposingSection}{" "}
-                    describes, which anyone anywhere can fetch and which are
-                    copied to a public repository on GitHub, a service run from
-                    the United States. Otherwise one copy of OpenDiving
+                    There is no network of servers behind it, and the software
+                    sends nothing of your account anywhere on its own. What it
+                    does send is the OpenDiving Commons records section 4.
+                    {proposingSection} describes, which anyone anywhere can
+                    fetch and which are copied to a public repository on GitHub,
+                    a service run from the United States. Otherwise one copy of
+                    OpenDiving
                   </>
                 ) : (
                   "There is no network of servers behind it and no transfer between countries built into the software: one copy of OpenDiving"
@@ -2554,7 +2742,8 @@ export default async function PrivacyPage() {
                     {" "}
                     On this copy you need ask nobody:{" "}
                     <em>Who Runs This Copy</em> at the top of this page names
-                    the region the database and the files sit in.
+                    where the database and the files sit, and where their
+                    encrypted backup is kept.
                   </>
                 )}
               </p>
@@ -2672,7 +2861,8 @@ export default async function PrivacyPage() {
                   link is opened from your mail app and lands on a page that has
                   no other way to know. It expires after 24 hours, is cleared
                   when you sign out, and is read once and removed. It can hold
-                  an in-app address such as a particular dive&rsquo;s page,
+                  an in-app address such as a particular dive&rsquo;s page, or a
+                  connect page, whose address carries its link&rsquo;s token,
                   which anyone else at this browser could read &mdash; which is
                   exactly why it does not linger
                 </li>
@@ -2686,13 +2876,13 @@ export default async function PrivacyPage() {
                       <>
                         {" "}
                         and, if you came by a join link or a member&rsquo;s
-                        invite link, which one
+                        connect link, which one
                       </>
                     ) : (
                       <>
                         {" "}
-                        and, where this copy is invite-only and you came by a
-                        member&rsquo;s invite link, which link
+                        and, if you came by a member&rsquo;s connect link, which
+                        link
                       </>
                     )}
                     . Written only when you press that button, one entry per

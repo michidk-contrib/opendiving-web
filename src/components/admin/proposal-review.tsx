@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import {
   AcceptDialog,
@@ -26,6 +26,7 @@ import {
   proposalAge,
   proposalSiteName,
 } from "@/components/admin/proposal-queue-frame";
+import { SiteHistoryCard } from "@/components/sites/site-history-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HERO_BODY, IndexHero } from "@/components/ui/map-hero";
@@ -75,16 +76,13 @@ export function ProposalReview({
   return (
     <div>
       <IndexHero
+        onBack={onBack}
+        backLabel="Back to the queue"
         title={PROPOSAL_QUEUE_TITLE}
         description={PROPOSAL_QUEUE_DESCRIPTION}
       />
 
       <div className={HERO_BODY}>
-        <Button variant="ghost" size="sm" className="mb-4" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to the queue
-        </Button>
-
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <h2
             ref={heading}
@@ -145,6 +143,11 @@ export function ProposalReview({
             />
 
             <ProposalMembers proposal={proposal} />
+
+            {/* A new site has no record yet, so no history. */}
+            {proposal.kind === "change" && (
+              <SiteHistoryCard siteUuid={proposal.site_uuid} asReviewer />
+            )}
 
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setDecision({ kind: "accept" })}>

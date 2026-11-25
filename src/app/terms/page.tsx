@@ -250,7 +250,8 @@ export default async function TermsPage() {
                   for a day
                 </li>
                 <li>
-                  Note the species you saw, from public registers of marine life
+                  Note the species you saw, from public registers of aquatic
+                  life
                 </li>
               </ul>
               <p className="text-foreground mb-4">
@@ -262,22 +263,24 @@ export default async function TermsPage() {
                   : "no comments"}
                 , no public ratings and no photo sharing. The rating you give a
                 dive is part of your own log. The people you record are private
-                records of yours, not connections between accounts.{" "}
+                records of yours; one connected to an account here shows that
+                account&rsquo;s username and picture, and nothing else of it.{" "}
                 {commonsPrimary
-                  ? "An account on this copy gives its holder no view of what you enter, apart from an administrator's, which reads what you propose for OpenDiving Commons and a photo a tool of yours proposes for a species."
+                  ? "An account on this copy gives its holder no view of what you enter, apart from an administrator's, which reads what you propose for OpenDiving Commons and a photo a tool of yours proposes for a species, and apart from your name beside a change of yours in a Commons site's history, where you choose to show it."
                   : "An account on this copy gives its holder no view of what you enter, apart from an administrator's, which reads a photo a tool of yours proposes for a species."}{" "}
                 This copy shows one person to another in{" "}
-                {commonsPrimary ? "five" : "four"} cases only: an invitation,
-                which is about your name rather than about anything you entered;
-                a check-in link you make, which shows your check-in page to
-                whoever holds it, account or not; a person you link to an
-                account here, which shows you that account&rsquo;s current
-                username and puts its identifier in your own export;{" "}
-                {!commonsPrimary && "and "}a photo a tool of yours proposes for
-                a species, which shows the file, its note and your name to
-                whoever reviews it
+                {commonsPrimary ? "six" : "four"} cases only: a connect link you
+                make, which is about your name and picture rather than about
+                anything you entered; a check-in link you make, which shows your
+                check-in page to whoever holds it, account or not; a person of
+                yours connected to an account here, which shows you that
+                account&rsquo;s current username and picture, shows that account
+                your name, username and picture, and puts its identifier in your
+                own export; {!commonsPrimary && "and "}a photo a tool of yours
+                proposes for a species, which shows the file, its note and your
+                name to whoever reviews it
                 {commonsPrimary &&
-                  "; and a proposal for OpenDiving Commons, which shows what you proposed and your name to whoever reviews it, and publishes what is accepted, without your name"}
+                  "; a proposal for OpenDiving Commons, which shows what you proposed and your name to whoever reviews it, and publishes what is accepted, without your name; and your name beside what a proposal of yours changed in a Commons site's history, which every account here sees only where you choose it"}
                 . Section 5 says exactly what each is, and what follows from the
                 rest.
               </p>
@@ -325,7 +328,7 @@ export default async function TermsPage() {
                 Where the operator of this copy has closed it to new accounts,
                 registering also needs an invitation, and the address you
                 register with must be the one that was invited, unless you came
-                by a member&rsquo;s invite link
+                by a member&rsquo;s connect link
                 {joinLinks ? (
                   <>
                     {" "}
@@ -451,42 +454,43 @@ export default async function TermsPage() {
                 &mdash; to store your entries, show them back to you, and
                 include them in exports you ask for.{" "}
                 {commonsPrimary
-                  ? "Nothing you enter is published, shared with other users, or shown to anyone else by this software, except through a check-in link you make, a photo proposal a tool of yours sends, or a proposal you send for OpenDiving Commons."
+                  ? "Nothing you enter is published, shared with other users, or shown to anyone else by this software, except through a check-in link you make, a photo proposal a tool of yours sends, or a proposal you send for OpenDiving Commons, with your name in the site's history where you choose to show it."
                   : "Your entries are not published, shared with other users, or shown to anyone else by this software, except through a check-in link you make or a photo proposal a tool of yours sends."}{" "}
                 Printing your check-in summary and handing it to a dive shop is
                 you showing your own entries to someone, not this copy showing
                 them, and the permission above is unchanged by it.{" "}
                 {commonsPrimary
-                  ? "The next five paragraphs are the five things"
+                  ? "The next six paragraphs are the six things"
                   : "The next four paragraphs are the four things"}{" "}
-                this copy does show one person to another: an invitation, which
-                is not an entry; a check-in link, which is; a person linked to
-                an account, which shows you something of theirs rather than
-                anything of yours; {!commonsPrimary && "and "}a photo proposal,
-                which is an entry shown to whoever reviews it alone
+                this copy does show one person to another: a connect link, which
+                is not an entry; a check-in link, which is; a connection between
+                a person and an account, which shows each side something of the
+                other rather than anything either has logged;{" "}
+                {!commonsPrimary && "and "}a photo proposal, which is an entry
+                shown to whoever reviews it alone
                 {commonsPrimary &&
-                  "; and a proposal for OpenDiving Commons, which is an entry, and the one thing here that can end up public"}
+                  "; a proposal for OpenDiving Commons, which is an entry, and the one thing here that can end up public; and your name in a Commons site's history, which is not an entry, and which you choose for each proposal"}
                 .
               </p>
               <p className="text-foreground mb-4">
-                Where this copy is invite-only and you invite somebody to it,
-                you grant the operator the further permission that act needs,
-                and only that: to tell the address you invited that <em>you</em>{" "}
-                invited them, naming you, and to tell you whether that address
-                went on to register here; and, where you make an invite link, to
-                show your name to whoever opens it, and to show you the name on
-                the account of anyone who creates one through it. Nothing you
-                have logged is involved &mdash; no dive, site, trip, gear item,
-                course, certification, contact, person or tag &mdash; and nobody
-                you have not invited learns anything either way, except that
-                whoever holds your invite link, however it reached them, sees
-                your name. And where you create your account through a
-                member&rsquo;s invite link, you grant the operator the
-                permission that needs, and only that: to show that member the
-                name on your account, as it is and as you change it, for as long
-                as both accounts exist &mdash; never your address, and nothing
-                you log. The privacy policy&rsquo;s section 4.8 sets out the
-                same in its own register.
+                Where you make a connect link, you grant the operator the
+                further permission that act needs, and only that: to show your
+                name and picture to whoever opens it, and your username to
+                whoever opens it signed in; to connect to you a person of
+                whoever saves the one it offers; and, where this copy is
+                invite-only, to let whoever follows it create an account here,
+                counted as your invitation, which starts with you in its people,
+                connected. Nothing you have logged is involved &mdash; no dive,
+                site, trip, gear item, course, certification, contact, person or
+                tag &mdash; and nobody learns anything of you through it but
+                whoever holds the link, however it reached them. And where you
+                create your account through a member&rsquo;s connect link, you
+                grant the operator the permission that needs, and only that: to
+                start your account with that member in your people, connected,
+                as the paragraph on connecting a person below describes &mdash;
+                never your address, and nothing you log. The privacy
+                policy&rsquo;s sections 4.8 and 4.10 set out the same in its own
+                register.
               </p>
               <p className="text-foreground mb-4">
                 Where you make a check-in link, you grant the operator the
@@ -500,20 +504,25 @@ export default async function TermsPage() {
                 register.
               </p>
               <p className="text-foreground mb-4">
-                Where you link a person you recorded to an account on this copy
-                &mdash; by typing its username, or by importing a file that
-                names it &mdash; you grant the operator the further permission
-                that act needs, and only that: to tell you whether an account
-                with that username exists here, to show you its current username
-                beside your person for as long as the link stands, and to write
-                that account&rsquo;s identifier, which also encodes when the
-                account was created, into the exports you ask for. Nothing you
-                have logged is shown to that account, and it is told nothing
-                either way. The same holds the other way round: anyone here who
-                types your username can link a person to your account, and
-                learns that it exists, its current username and its identifier,
-                and nothing else. The privacy policy&rsquo;s section 4.10 sets
-                out the same in its own register.
+                Where you connect a person you recorded to an account on this
+                copy &mdash; through its connect link, by Add under Added you,
+                by creating your account through its link, or by importing a
+                file that names it &mdash; you grant the operator the further
+                permission that act needs, and only that: to show you that
+                account&rsquo;s current username and picture beside your person
+                for as long as the connection stands; to show that account your
+                name, username and picture under its Added you, until it adds
+                you back or hides you; and to write that account&rsquo;s
+                identifier, which also encodes when the account was created,
+                into the exports you ask for. Nothing you have logged is shown
+                to that account. The same holds the other way round: anyone here
+                who connects a person to your account &mdash; through your
+                connect link, by adding you back, or by importing a file that
+                names you &mdash; is shown your current username and picture,
+                and you are shown their name, username and picture, until you
+                disconnect them, which they are not told of. The privacy
+                policy&rsquo;s section 4.10 sets out the same in its own
+                register.
               </p>
               <p className="text-foreground mb-4">
                 Where a tool of yours proposes a Wikimedia Commons file as a
@@ -555,15 +564,38 @@ export default async function TermsPage() {
                   </a>
                   , which gives up your rights in it, for everyone, as far as
                   the law allows. What is accepted is public, never says who
-                  proposed it, and stays if you delete your account; a change
-                  accepted into a record from another source leaves that record
-                  under its source&rsquo;s licence. What is declined or
-                  withdrawn publishes nothing, and a decline always comes with a
-                  reason. Anyone can report a Commons record to the operator of
-                  this copy, by the way section 13 gives, and a report is
-                  answered by changing the record; a record cannot yet be
-                  removed. The privacy policy&rsquo;s section headed{" "}
+                  proposed it in the pool or its public copies, and stays if you
+                  delete your account; a change accepted into a record from
+                  another source leaves that record under its source&rsquo;s
+                  licence. What is declined or withdrawn publishes nothing, and
+                  a decline always comes with a reason. Anyone can report a
+                  Commons record to the operator of this copy, by the way
+                  section 13 gives, and a report is answered by changing the
+                  record; a record cannot yet be removed. The privacy
+                  policy&rsquo;s section headed{" "}
                   <em>Proposing for OpenDiving Commons</em> sets out the same in
+                  its own register.
+                </p>
+              )}
+              {commonsPrimary && (
+                <p className="text-foreground mb-4">
+                  Where you choose, for a proposal of yours, to show your name
+                  to other divers, you grant the operator the further permission
+                  that act needs, and only that: to show the name on your
+                  account, as it is and as you change it, to every account on
+                  this copy, beside what that proposal changed in the
+                  site&rsquo;s history, for as long as the choice is on and your
+                  account stands &mdash; never your address. You can turn it off
+                  and on again in <em>Your proposals</em>. Whoever reviews
+                  proposals sees your name beside your entries either way, and
+                  each entry keeps which administrator accepted it, which
+                  administrators alone are shown. What a reviewer corrects in
+                  what you proposed is listed apart, as the reviewer&rsquo;s own
+                  change, under that administrator&rsquo;s name, to every
+                  account here. Your name never reaches the public copies of the
+                  Commons, and once your account goes the entry stays and names
+                  nobody. The privacy policy&rsquo;s section headed{" "}
+                  <em>A Commons Site&rsquo;s History</em> sets out the same in
                   its own register.
                 </p>
               )}
@@ -575,8 +607,8 @@ export default async function TermsPage() {
                 arrives with a permission of its own written here and a section
                 of its own on the privacy page, rather than leaning on this one.{" "}
                 {commonsPrimary
-                  ? "The invitation, check-in link, linking, photo proposal and Commons proposal grants above are that rule being kept, not exceptions to it."
-                  : "The invitation, check-in link, linking and photo proposal grants above are that rule being kept, not exceptions to it."}
+                  ? "The connect link, check-in link, connection, photo proposal, Commons proposal and Commons history grants above are that rule being kept, not exceptions to it."
+                  : "The connect link, check-in link, connection and photo proposal grants above are that rule being kept, not exceptions to it."}
               </p>
             </section>
 
