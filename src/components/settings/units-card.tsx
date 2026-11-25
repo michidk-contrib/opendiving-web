@@ -149,8 +149,8 @@ export function UnitsCard() {
         </div>
         <p className="text-sm text-muted-foreground">
           Applies throughout the app, on every device you sign in from. Depth
-          also controls visibility, altitude, distance and wind speed. Gas
-          volume controls gas totals and breathing rates.
+          also controls visibility, altitude and distance. Gas volume controls
+          gas totals and RMV. SAC follows pressure.
         </p>
         <p className="text-sm text-muted-foreground">
           Your dives and exports stay in metric. Cylinder water capacity stays
