@@ -14,8 +14,8 @@ import {
 } from "@/components/dives/dive-map-locations";
 import { DiveIcon } from "@/components/logo";
 import { useUnits } from "@/hooks/useUnits";
-import { formatDurationHoursMinutes } from "@/lib/date-time";
-
+import { formatDurationMinutes } from "@/lib/date-time";
+import { formatDepth, formatTemperature, formatVisibility } from "@/lib/units";
 import type { ReturnTarget } from "@/lib/return-to";
 
 /**
@@ -33,16 +33,17 @@ export function DiveHero({
   back: ReturnTarget;
   actions?: ReactNode;
 }) {
-  const { formatDepth, formatTemperature, formatVisibility } = useUnits();
+  const units = useUnits();
   const locations = diveMapLocations(dive);
   const isPlaced = hasMapPosition(locations);
   const facts = diveFacts(dive);
 
-  const wholeDepth = (meters: number) => formatDepth(meters, { decimals: 0 });
+  const wholeDepth = (meters: number) =>
+    formatDepth(meters, units, { decimals: 0 });
   const figures: MapHeroFigure[] = [
     {
       label: "Dive time",
-      value: formatDurationHoursMinutes(dive.submerged_time),
+      value: formatDurationMinutes(dive.submerged_time),
     },
   ];
   if (dive.max_depth != null) {
@@ -52,7 +53,7 @@ export function DiveHero({
   if (dive.bottom_temperature != null) {
     figures.push({
       label: "Water temp",
-      value: formatTemperature(dive.bottom_temperature, {
+      value: formatTemperature(dive.bottom_temperature, units, {
         decimals: 0,
       }),
     });
@@ -60,7 +61,7 @@ export function DiveHero({
   if (dive.visibility != null) {
     figures.push({
       label: "Visibility",
-      value: formatVisibility(dive.visibility),
+      value: formatVisibility(dive.visibility, units),
     });
   }
   // A dive lists each species once, so its sightings are its species.
