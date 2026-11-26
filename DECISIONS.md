@@ -1162,7 +1162,7 @@ own sample with `nearestSampleIndex`. Readouts are real readings, never interpol
 `tooltipVerticalAnchor` pins the card to the plot's top or bottom edge, whichever keeps it off the
 readings: card height depends on channel count, so offsetting from a point overflows the chart.
 
-Keyboard scrubbing is out of scope. The `aria-label` uses `formatDurationHoursMinutes`, not `MM:SS`.
+Keyboard scrubbing is out of scope. The `aria-label` uses `formatDurationMinutes`, not `MM:SS`.
 `--pressure` is a third theme-stable token in `globals.css`, grey.
 
 ## The profile's line breaks are derived from the series' own cadence
@@ -2353,7 +2353,7 @@ identically. The denominator is the profile's span, not `Dive.submerged_time`: i
 attribution ran over, and `Dive.submerged_time` may be hand-edited, making the fraction
 unfalsifiable. It returns null when `attributed >= total` rather than printing "covers 45min of the
 40min recorded" — unreachable from a correct API, but the shape a degenerate profile takes. The
-sentence names the dive computer ("the 1h 12min the dive computer recorded") because
+sentence names the dive computer ("the 72min the dive computer recorded") because
 `DiveGasUse.duration` routinely outruns the header's `Dive time`; two right numbers for two spans
 must not read as one being wrong.
 
